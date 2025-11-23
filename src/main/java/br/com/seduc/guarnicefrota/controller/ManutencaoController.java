@@ -51,9 +51,10 @@ public class ManutencaoController {
             manutencao.setTipo(manutencaoDetails.getTipo());
             manutencao.setDescricao(manutencaoDetails.getDescricao());
             manutencao.setVeiculo(manutencaoDetails.getVeiculo());
-            manutencao.setData(manutencaoDetails.getData());
-            manutencao.setCusto(manutencaoDetails.getCusto());
-            manutencao.setFornecedor(manutencaoDetails.getFornecedor());
+            manutencao.setDataInicio(manutencaoDetails.getDataInicio());
+            manutencao.setDataFim(manutencaoDetails.getDataFim());
+            manutencao.setStatus(manutencaoDetails.getStatus());
+            manutencao.setVeiculo(manutencaoDetails.getVeiculo());
             Manutencao updatedManutencao = manutencaoService.salvarManutencao(manutencao);
             return ResponseEntity.ok(updatedManutencao);
         } else {

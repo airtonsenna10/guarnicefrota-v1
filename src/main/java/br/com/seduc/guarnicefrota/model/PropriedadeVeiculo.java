@@ -1,7 +1,12 @@
+
+/* 
 package br.com.seduc.guarnicefrota.model;
 
 
 public enum PropriedadeVeiculo {
-    ALUGADO,
-    PROPRIO
+    alugado,
+    proprio,
+    cedido
 }
+
+*/

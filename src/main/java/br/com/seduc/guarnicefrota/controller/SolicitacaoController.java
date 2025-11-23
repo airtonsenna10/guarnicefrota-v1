@@ -2,7 +2,6 @@ package br.com.seduc.guarnicefrota.controller;
 
 import br.com.seduc.guarnicefrota.model.Solicitacao;
 import br.com.seduc.guarnicefrota.model.Servidor;
-import br.com.seduc.guarnicefrota.model.Veiculo;
 import br.com.seduc.guarnicefrota.service.SolicitacaoService;
 import br.com.seduc.guarnicefrota.service.ServidorService;
 import br.com.seduc.guarnicefrota.service.VeiculoService;
@@ -20,13 +19,13 @@ public class SolicitacaoController {
 
     private final SolicitacaoService solicitacaoService;
     private final ServidorService servidorService;
-    private final VeiculoService veiculoService;
+    
 
     //@Autowired
     public SolicitacaoController(SolicitacaoService solicitacaoService, ServidorService servidorService, VeiculoService veiculoService) {
         this.solicitacaoService = solicitacaoService;
         this.servidorService = servidorService;
-        this.veiculoService = veiculoService;
+        
     }
 
     @PostMapping
@@ -54,13 +53,19 @@ public class SolicitacaoController {
         Optional<Solicitacao> solicitacaoOptional = solicitacaoService.buscarSolicitacaoPorId(id);
         if (solicitacaoOptional.isPresent()) {
             Solicitacao solicitacao = solicitacaoOptional.get();
-            solicitacao.setVeiculo(solicitacaoDetails.getVeiculo()); // Cuidado ao atualizar relacionamentos assim
             solicitacao.setServidor(solicitacaoDetails.getServidor()); // Cuidado ao atualizar relacionamentos assim
             solicitacao.setDataSolicitacao(solicitacaoDetails.getDataSolicitacao());
+            solicitacao.setOrigem(solicitacaoDetails.getOrigem());
             solicitacao.setDestino(solicitacaoDetails.getDestino());
-            solicitacao.setMotivo(solicitacaoDetails.getMotivo());
-            solicitacao.setDuracao(solicitacaoDetails.getDuracao());
+            solicitacao.setDataInicio(solicitacaoDetails.getDataInicio());
+            solicitacao.setDataFim(solicitacaoDetails.getDataFim());
+            solicitacao.setHorarioSaida(solicitacaoDetails.getHorarioSaida());
+            solicitacao.setHorarioChegada(solicitacaoDetails.getHorarioChegada());
+            solicitacao.setJustificativa(solicitacaoDetails.getJustificativa());
+            solicitacao.setQuantPessoas(solicitacaoDetails.getQuantPessoas());
             solicitacao.setStatus(solicitacaoDetails.getStatus());
+            solicitacao.setBagagemLitros(solicitacaoDetails.getBagagemLitros());
+            
             Solicitacao updatedSolicitacao = solicitacaoService.salvarSolicitacao(solicitacao);
             return ResponseEntity.ok(updatedSolicitacao);
         } else {
@@ -89,14 +94,5 @@ public class SolicitacaoController {
         }
     }
 
-    @GetMapping("/veiculo/{veiculoId}")
-    public ResponseEntity<List<Solicitacao>> getSolicitacoesByVeiculo(@PathVariable Long veiculoId) {
-        Optional<Veiculo> veiculoOptional = veiculoService.buscarVeiculoPorId(veiculoId);
-        if (veiculoOptional.isPresent()) {
-            List<Solicitacao> solicitacoes = solicitacaoService.buscarSolicitacoesPorVeiculo(veiculoOptional.get());
-            return ResponseEntity.ok(solicitacoes);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+    
 }

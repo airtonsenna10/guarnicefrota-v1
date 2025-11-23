@@ -3,7 +3,7 @@ package br.com.seduc.guarnicefrota.model;
 import jakarta.persistence.*;
 
 @Entity
-//@Table(name = "organogramas")
+@Table(name = "tb02_organograma")
 public class Organograma {
 
     @Id
@@ -17,6 +17,11 @@ public class Organograma {
     private String responsavel;
 
     private String descricao;
+
+    // relacionamento recursivo: um item pode ter um pai
+    @ManyToOne
+    @JoinColumn(name = "pai")
+    private Organograma pai;
 
     // Getters and setters
 

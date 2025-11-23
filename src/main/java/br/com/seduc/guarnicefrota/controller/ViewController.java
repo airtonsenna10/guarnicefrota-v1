@@ -1,3 +1,5 @@
+/* 
+
 package br.com.seduc.guarnicefrota.controller;
 
 import org.springframework.stereotype.Controller;
@@ -30,3 +32,5 @@ public class ViewController {
     }
     
 }
+
+*/

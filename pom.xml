@@ -3,9 +3,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.7</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.7</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -14,7 +14,7 @@
 	<artifactId>guarnicefrota</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>guarnicefrota</name>
-	<description>Sversionistema de gestão de frota</description>
+	<description>sistema de gestão de frota</description>
 
 
 
@@ -39,8 +39,9 @@
         <!-- MySQL Connector -->
         <dependency>
             <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <scope>runtime</scope>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>8.4.0</version> <!-- ou 8.3.0, se preferir -->
+                <scope>runtime</scope>
         </dependency>
 
         <!-- Spring Security (para PasswordEncoder, BCrypt, etc.) -->

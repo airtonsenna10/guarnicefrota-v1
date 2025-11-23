@@ -34,15 +34,18 @@ public class Veiculo {
     private int capacidade;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "enum('disponivel','em_manutençao','em_uso','inativo')")
     private StatusVeiculo status;
 
     @Column(name = "data_aquisicao")
     private LocalDate dataAquisicao;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "enum('alugado','proprio','cedido')")
     private PropriedadeVeiculo propriedade;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "enum('alcool','diesel','eletrico','flex','gasolina','gnv','hibrido','hidrogenio')")
     private CategoriaVeiculo categoria;
 
     @Column(precision = 5, scale = 2)
@@ -50,6 +53,15 @@ public class Veiculo {
 
     @Column(name = "ultima_revisao")
     private LocalDate ultimaRevisao;
+
+    // ENUMS do banco
+    public enum CategoriaVeiculo {
+        alcool,diesel,eletrico,flex,gasolina,gnv,hibrido,hidrogenio
+    }
+
+    public enum PropriedadeVeiculo {
+        alugado,proprio,cedido
+    }
 
     // Getters and Setters
 

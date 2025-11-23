@@ -4,28 +4,39 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-//@Table(name = "manutencoes")
+@Table(name = "tb08_manutencao")
 public class Manutencao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_manutencao", nullable = false)
     private Long id;
 
-    @Column(nullable = false)
-    private String tipo;
-
-    private String descricao;
-
     @ManyToOne
-    @JoinColumn(name = "veiculo_id", nullable = false)
+    @JoinColumn(name = "fk_veiculo", nullable = false)
     private Veiculo veiculo;
 
-    @Column(nullable = false)
-    private LocalDate data;
+    @Column(name = "tipo_manutencao", length = 100)
+    private String tipo;
 
-    private Double custo;
+    @Column(columnDefinition = "TEXT")
+    private String descricao;
 
-    private String fornecedor;
+   @Column(name = "data_inicio")
+    private LocalDate dataInicio;
+
+    @Column(name = "data_fim")
+    private LocalDate dataFim;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_manutencao")
+    private StatusManutencao status;
+
+    public enum StatusManutencao {
+        concluida,
+        em_andamento,
+        cancelada
+    }
 
     // Getters and setters
 
@@ -35,6 +46,14 @@ public class Manutencao {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Veiculo getVeiculo() {
+        return veiculo;
+    }
+
+    public void setVeiculo(Veiculo veiculo) {
+        this.veiculo = veiculo;
     }
 
     public String getTipo() {
@@ -53,35 +72,27 @@ public class Manutencao {
         this.descricao = descricao;
     }
 
-    public Veiculo getVeiculo() {
-        return veiculo;
+    public LocalDate getDataInicio() {
+        return dataInicio;
     }
 
-    public void setVeiculo(Veiculo veiculo) {
-        this.veiculo = veiculo;
+    public void setDataInicio(LocalDate dataInicio) {
+        this.dataInicio = dataInicio;
     }
 
-    public LocalDate getData() {
-        return data;
+    public LocalDate getDataFim() {
+        return dataFim;
     }
 
-    public void setData(LocalDate data) {
-        this.data = data;
+    public void setDataFim(LocalDate dataFim) {
+        this.dataFim = dataFim;
     }
 
-    public Double getCusto() {
-        return custo;
+    public StatusManutencao getStatus() {
+        return status;
     }
 
-    public void setCusto(Double custo) {
-        this.custo = custo;
-    }
-
-    public String getFornecedor() {
-        return fornecedor;
-    }
-
-    public void setFornecedor(String fornecedor) {
-        this.fornecedor = fornecedor;
+    public void setStatus(StatusManutencao status) {
+        this.status = status;
     }
 }

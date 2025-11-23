@@ -48,7 +48,8 @@ public class MotoristaController {
             motorista.setCnh(motoristaDetails.getCnh());
             motorista.setCategoriaCnh(motoristaDetails.getCategoriaCnh());
             motorista.setValidadeCnh(motoristaDetails.getValidadeCnh());
-            motorista.setDisponibilidade(motoristaDetails.isDisponibilidade());
+            motorista.setAtivo(motoristaDetails.getAtivo());
+            motorista.setObservacao(motoristaDetails.getObservacao());
             Motorista updatedMotorista = motoristaService.salvarMotorista(motorista);
             return ResponseEntity.ok(updatedMotorista);
         } else {

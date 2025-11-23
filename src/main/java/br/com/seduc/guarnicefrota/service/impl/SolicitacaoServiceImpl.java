@@ -2,7 +2,6 @@ package br.com.seduc.guarnicefrota.service.impl;
 
 import br.com.seduc.guarnicefrota.model.Solicitacao;
 import br.com.seduc.guarnicefrota.model.Servidor;
-import br.com.seduc.guarnicefrota.model.Veiculo;
 import br.com.seduc.guarnicefrota.repository.SolicitacaoRepository;
 import br.com.seduc.guarnicefrota.service.SolicitacaoService;
 //import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +44,5 @@ public class SolicitacaoServiceImpl implements SolicitacaoService {
         return solicitacaoRepository.findByServidor(servidor);
     }
 
-    @Override
-    public List<Solicitacao> buscarSolicitacoesPorVeiculo(Veiculo veiculo) {
-        return solicitacaoRepository.findByVeiculo(veiculo);
-    }
+    
 }

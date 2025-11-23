@@ -14,22 +14,12 @@ public class GuarniceFrotaApplication {
   String name;
   
 
-  /* 
-  @RestController
-  class HelloworldController {
-    @GetMapping("/")
-    String hello() {
-      return "Hello " + name + "!";
-    }
-  }
-*/
-
  
   @RestController
   class HelloworldController {
     @GetMapping("/hello")
     String hello() {
-      return "Hello vc bbbbb dfdfdf";
+      return "Hello, conseguindo rodar o Spring Boot - sistema guarnice frota vvvvvvv";
     }
   }
 

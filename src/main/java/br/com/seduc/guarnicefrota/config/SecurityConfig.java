@@ -21,33 +21,9 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    /* 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable()) // (1)
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // (2)
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll() // (3)
-                .anyRequest().authenticated() // (4)
-            );
-        return http.build();
-    }
-*/
-/* 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-            .anyRequest().permitAll()
-        );
+  
 
-        return http.build();
-    }
-
-*/
+    
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -59,13 +35,6 @@ public class SecurityConfig {
             .httpBasic(basic -> basic.disable()); // desativa autenticação básica
         return http.build();
     }
-
-
-
-
-
-
-
 
 }
 

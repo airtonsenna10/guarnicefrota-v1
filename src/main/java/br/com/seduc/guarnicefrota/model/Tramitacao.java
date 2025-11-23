@@ -20,7 +20,7 @@ public class Tramitacao {
     @JoinColumn(name = "fk_organograma", nullable = false)
     private Organograma organograma;
 
-    @Column(name = "data_hora", nullable = false)
+    @Column(name = "data_hora")
     private LocalDateTime dataHora;
 
     @Enumerated(EnumType.STRING)

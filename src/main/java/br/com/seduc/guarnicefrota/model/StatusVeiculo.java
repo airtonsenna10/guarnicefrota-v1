@@ -1,8 +1,8 @@
 package br.com.seduc.guarnicefrota.model;
 
 public enum StatusVeiculo {
-    DISPONIVEL,
-    EM_USO,
-    EM_MANUTENCAO,
-    INATIVO
+    disponivel,
+    em_manutençao,
+    em_uso,
+    inativo
 }

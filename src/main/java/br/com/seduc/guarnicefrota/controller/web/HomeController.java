@@ -1,3 +1,5 @@
+/* 
+
 package br.com.seduc.guarnicefrota.controller.web;
 
 import org.springframework.stereotype.Controller;
@@ -26,3 +28,5 @@ public class HomeController {
         return "solicitacoes"; // This will resolve to src/main/resources/templates/solicitacoes.html
     }
 }
+
+*/

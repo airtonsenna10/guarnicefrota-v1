@@ -27,7 +27,7 @@ public class VeiculoController {
         return new ResponseEntity<>(savedVeiculo, HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping()
     public List<Veiculo> getAllVeiculos() {
         return veiculoService.buscarTodosVeiculos();
     }
