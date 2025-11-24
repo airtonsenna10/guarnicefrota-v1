@@ -2,6 +2,8 @@ package br.com.seduc.guarnicefrota.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -18,30 +20,34 @@ public class Pessoa {
     @Column(nullable = false, unique = true, length = 45)
     private String email;
 
-    @Column(nullable = false, length = 250)
-    private String senha;
-
-    @Column(length = 11)
+    @Column(nullable = false, unique = true, length = 14)
     private String cpf;
 
     @Column(length = 20)
     private String celular;
+
+    @Column(nullable = false, length = 250)
+    private String senha;
 
     @Enumerated(EnumType.STRING)
     private Papel papel;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status_conta")
+    @JsonProperty("status_conta")
     private StatusConta statusConta;
 
-    @Column(name = "data_criacao", updatable = false)
+    @Column(name = "foto_url", length = 255)
+    @JsonProperty("foto_url")
+    private String fotoUrl;
+
+    @Column(name = "data_criacao", updatable = false, insertable = false)
     private LocalDateTime dataCriacao;
 
-    @Column(name = "data_atualizacao")
+    @Column(name = "data_atualizacao", insertable = false, updatable = false)
     private LocalDateTime dataAtualizacao;
 
-    @Column(name = "foto_url", length = 255)
-    private String fotoUrl;
+   
 
     // ENUMS DO BANCO
     public enum Papel {
@@ -49,7 +55,7 @@ public class Pessoa {
     }
 
     public enum StatusConta {
-        ATIVO, INATIVO, PENDENTE_VALIDACAO
+        ativo, inativo, pendente
     }
 
     // Getters e Setters

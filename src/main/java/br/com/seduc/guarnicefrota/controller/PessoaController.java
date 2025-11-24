@@ -21,7 +21,7 @@ public class PessoaController {
         this.pessoaService = pessoaService;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Pessoa> createPessoa(@RequestBody Pessoa pessoa) {
         Pessoa savedPessoa = pessoaService.salvarPessoa(pessoa);
         return new ResponseEntity<>(savedPessoa, HttpStatus.CREATED);
