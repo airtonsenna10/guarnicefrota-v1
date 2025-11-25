@@ -1,0 +1,38 @@
+.sidebar {
+    min-width: 250px;
+    max-width: 250px;
+    background: #4e73df;
+    color: #fff;
+    transition: all 0.3s;
+}
+
+.sidebar.toggled {
+    margin-left: -250px;
+}
+
+.sidebar h2 {
+    padding: 20px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    padding: 10px 20px;
+}
+
+.sidebar .nav-link:hover {
+    color: #fff;
+    background: #6a8dff;
+}
+
+.sidebar .nav-link.active {
+    font-weight: 700;
+    color: #fff;
+}
+
+.sidebar .collapse .nav-link {
+    padding-left: 20px;
+    font-size: 0.9rem;
+}
