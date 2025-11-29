@@ -1,3 +1,29 @@
+
+#sidebar-wrapper {
+    min-height: 100vh;
+    margin-left: -15rem;
+    transition: margin .25s ease-out;
+}
+
+#sidebar-wrapper .sidebar-heading {
+    padding: 0.875rem 1.25rem;
+    font-size: 1.2rem;
+}
+
+#sidebar-wrapper .list-group {
+    width: 15rem;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+    margin-left: 0;
+}
+
+
+
+
+
+/*
+
 .sidebar {
     min-width: 250px;
     max-width: 250px;
@@ -36,3 +62,4 @@
     padding-left: 20px;
     font-size: 0.9rem;
 }
+*/
