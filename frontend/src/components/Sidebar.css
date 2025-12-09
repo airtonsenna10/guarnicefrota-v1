@@ -1,65 +1,170 @@
 
-#sidebar-wrapper {
-    min-height: 100vh;
-    margin-left: -15rem;
-    transition: margin .25s ease-out;
+/* Arquivo de Estilos do Componente Sidebar (Sidebar.css) */
+
+/* --- CABEÇALHO DA SIDEBAR --- */
+.sidebar-heading {
+  display: flex; /* 1. Transforma o cabeçalho em um contêiner flex para alinhar seus filhos (título e botão). */
+  justify-content: space-between; /* 2. Coloca o máximo de espaço entre o título e o botão, empurrando-os para as extremidades. */
+  align-items: center; /* 3. Centraliza o título e o botão verticalmente. */
+  padding: 0.75rem 1.25rem;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #747171; /* Cor do texto do título */
 }
 
-#sidebar-wrapper .sidebar-heading {
-    padding: 0.875rem 1.25rem;
-    font-size: 1.2rem;
+/* --- BOTÃO HAMBURGUER --- */
+.hamburger-button {
+  background: none; /* 4. Remove o fundo padrão do botão. */
+  border: none; /* 5. Remove a borda padrão do botão. */
+  color: #9cafa2; /* 6. Define a cor do ícone dentro do botão. */
+  font-size: 1.5rem; /* 7. Ajusta o tamanho do ícone. */
+  cursor: pointer; /* 8. Mostra o ícone de "mãozinha" para indicar que é clicável. */
+  transition: color 0.2s; /* 9. Adiciona uma animação suave para a mudança de cor no hover. */
 }
 
-#sidebar-wrapper .list-group {
-    width: 15rem;
+.hamburger-button:hover {
+  color: #10b981; /* 10. Muda a cor do ícone para verde quando o mouse passa por cima. */
 }
 
-#wrapper.toggled #sidebar-wrapper {
-    margin-left: 0;
+/* Caixa de alinhamento para todos os ícones */
+.menu-icon {
+    width: 24px;                    /* Define uma largura fixa para manter todos os ícones alinhados */
+    display: flex;                 /* Usa flexbox para controlar alinhamento interno */
+    justify-content: center;       /* Centraliza o ícone horizontalmente dentro da caixa */
+    align-items: center;           /* Centraliza o ícone verticalmente */
+    margin-right: 15px;             /* Espaço entre o ícone e o texto do menu */
+    flex-shrink: 0; /* Impede que o ícone seja espremido. */
+    transition: margin 0.3s ease-in-out;
+}
+
+
+/* Cabeçalho */
+.sidebar-heading {
+    font-size: 1.3rem;             /* Tamanho maior do texto do título do menu */
+    padding: 0.75rem 1.25rem;      /* Espaçamento interno (top/bottom e left/right) */
+    font-weight: bold;             /* Deixa o título em negrito */
+    /*color: #e5e7eb;*/            /* Cor opcional do texto (comentada) */
+}
+
+
+
+
+/* Estilo geral dos itens do menu */
+.list-group-item {
+    background: transparent !important;  /* Remove fundo padrão e deixa transparente */
+    /*color: #d1d5db;*/                  /* Cor do texto (comentada) */
+    border: none;                        /* Remove bordas padrão */
+    padding: 0.90rem 1.25rem;            /* Espaçamento interno */
+    font-size: 1.05rem;                  /* Tamanho da fonte dos itens */
+    display: flex;                       /* Permite alinhar ícone + texto horizontalmente */
+    align-items: center;                 /* Centraliza ícone e texto verticalmente */
+    /*transition: 0.25s;                   /* Transição suave para mudanças de estilo */
+    transition: padding 0.3s ease-in-out, background 0.25s;
+}
+
+
+
+/* SETA DO DROPDOWN */
+.list-group-item .fa-chevron-down {
+  margin-left: 1.5rem;
+  transition: transform 0.3s ease, opacity 0.2s;
+  opacity: 1;
+}
+
+
+
+/* Animação suave para o ícone de seta (dropdown) */
+.rotate-icon {
+    transform: rotate(180deg);          /* Rotaciona o ícone em 180° */
+    transition: 0.2s ease-in-out;       /* Define a suavidade da rotação */
+}
+
+/* Estilo dos ícones */
+.menu-icon svg {
+    font-size: 1.25rem;                 /* Tamanho padrão dos ícones */
+    color: #9ca3af;                     /* Cor cinza moderna */
+    transition: color 0.25s;                  /* Transição para hover suave */
+}
+
+/* Ícone muda de cor ao passar o mouse no item */
+.list-group-item:hover .menu-icon svg {
+    color: #10b981;                     /* Verde moderno (Tailwind Emerald-500) */
+}
+
+/* TEXTO (SPAN) */
+/* Estilo do texto dos itens */
+.list-group-item span {
+    font-weight: 500;                   /* Define peso da fonte */
+    /*color: #d1d5db;*/                 /* Cor padrão do texto (comentada) */
+    transition: 0.25s;                  /* Suavidade ao mudar cor/movimento */
+}
+
+
+/* Efeito ao passar o mouse no item inteiro */
+.list-group-item:hover {
+    background: rgba(255, 255, 255, 0.06) !important; /* Fundo leve translúcido */
+    cursor: pointer;                                   /* Cursor de mão */
+    padding-left: 1.5rem;                              /* Animação empurrando para direita */
+}
+
+/* Recuo para submenu (itens filhos) */
+.pl-4 {
+    padding-left: 1.5rem !important;    /* Aumenta a indentação */
+}
+
+/* Transição para qualquer ícone SVG do menu */
+.list-group-item svg {
+    transition: 0.25s;                  /* Anima suavemente */
+}
+
+/* Scrollbar estilizada (barra de rolagem) */
+#sidebar-wrapper::-webkit-scrollbar {
+    width: 6px;                          /* Barra fina */
+}
+
+#sidebar-wrapper::-webkit-scrollbar-thumb {
+    background: #4b5563;                 /* Cor do thumb (cinza forte) */
+    border-radius: 10px;                 /* Arredondado */
+}
+
+#sidebar-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;                 /* Cor mais clara no hover */
+}
+
+
+/* ========================================
+   ESTILOS DO MODO RECOLHIDO (COMPACTO)
+   ======================================== */
+
+/* Quando a classe `recolhida` é aplicada na sidebar... */
+#sidebar-wrapper.recolhida .sidebar-heading {
+  justify-content: center; /* 1. Centraliza o conteúdo do cabeçalho (o botão). */
+  padding: 0.75rem 0;
+}
+
+#sidebar-wrapper.recolhida .sidebar-heading span {
+  display: none; /* 2. Esconde o texto "Menu". */
+}
+
+#sidebar-wrapper.recolhida .list-group-item {
+  justify-content: center; /* 3. Centraliza o ícone no item. */
+  padding: 0.85rem 0;
+}
+
+#sidebar-wrapper.recolhida .menu-icon {
+  margin-right: 0; /* 4. Remove a margem do ícone. */
+}
+
+/* 5. Torna o texto e a seta de dropdown invisíveis e com largura zero para um recolhimento suave. */
+#sidebar-wrapper.recolhida .list-group-item span,
+#sidebar-wrapper.recolhida .list-group-item .fa-chevron-down {
+  opacity: 0;
+  width: 0;
 }
 
 
 
 
 
-/*
 
-.sidebar {
-    min-width: 250px;
-    max-width: 250px;
-    background: #4e73df;
-    color: #fff;
-    transition: all 0.3s;
-}
 
-.sidebar.toggled {
-    margin-left: -250px;
-}
-
-.sidebar h2 {
-    padding: 20px;
-    text-align: center;
-    font-size: 1.5rem;
-    font-weight: 700;
-}
-
-.sidebar .nav-link {
-    color: rgba(255, 255, 255, 0.8);
-    padding: 10px 20px;
-}
-
-.sidebar .nav-link:hover {
-    color: #fff;
-    background: #6a8dff;
-}
-
-.sidebar .nav-link.active {
-    font-weight: 700;
-    color: #fff;
-}
-
-.sidebar .collapse .nav-link {
-    padding-left: 20px;
-    font-size: 0.9rem;
-}
-*/

@@ -1,9 +1,82 @@
+/* Estilos Globais da Aplicação */
+
+
+/* Seletor para o contêiner principal que envolve a sidebar e o conteúdo da página. */
 #wrapper {
-    overflow-x: hidden;
+  display: flex; /* Habilita o layout flexbox, permitindo que a sidebar e o conteúdo fiquem lado a lado. */
+  flex: 1; /* Ocupa o espaço restante */
+  /*overflow-y: hidden; /* Evita rolagem duplicada */
+  /*border: 1px solid black;*/
 }
 
+/* Seletor para o contêiner que envolve o conteúdo principal da página (excluindo a sidebar). */
 #page-content-wrapper {
-   /*width: 100%;*/
-    flex-grow: 1;
-    min-width: 0;
+  flex: 1; /* Faz com que este elemento ocupe todo o espaço horizontal disponível, crescendo conforme necessário. */
+  padding: 20px; /* Adiciona um espaçamento interno de 20 pixels em todos os lados. */
+  overflow-y: auto; /* Permite rolagem no conteúdo */
+  
 }
+
+/* Estilo aplicado quando a classe .sidebar-toggled está presente no contêiner pai. */
+.sidebar-toggled #sidebar-wrapper {
+    margin-left: -20rem; /* Move a sidebar para a esquerda (para fora da tela), escondendo-a. O valor deve ser igual à largura da sidebar. */
+}
+
+/* Define um contêiner principal para toda a aplicação, organizado em coluna e ocupando 100% da altura da tela. */
+.app-container {
+  display: flex; /* Define layout flexbox para organizar elementos internos. */
+  flex-direction: column; /* Organiza os elementos em coluna (um abaixo do outro). */
+  height: 100vh; /* Faz com que o contêiner ocupe exatamente a altura total da janela do navegador. */
+  
+}
+
+/* Estilo aplicado ao elemento onde fica a sidebar. */
+/*
+#sidebar-wrapper {
+  /*min-height: 50%; /* Garante que a sidebar tenha altura mínima de 100% do seu contêiner (tela). */
+  /*transition: margin .25s ease-out; /* Adiciona uma animação suave de 0.25s ao alterar o margin, usada para esconder/exibir a sidebar. */
+  /*border: 1px solid black;
+  width: 13rem; /* Define a largura padrão da sidebar. 
+  
+}
+*/
+
+/* --- ESTILOS DA SIDEBAR (LARGURA E ANIMAÇÃO) --- */
+
+/* 1. Define a largura inicial da sidebar quando ela está expandida. */
+#sidebar-wrapper {
+  width: 220px; 
+  transition: width 0.3s ease-in-out; /* 2. Anima a propriedade 'width' suavemente ao longo de 0.3 segundos. */
+  background-color: #090d12; /* Mantém o fundo escuro que definimos anteriormente */
+  /*border: 1px solid black;*/
+  }
+
+/* 3. Quando a classe `recolhida` é aplicada... */
+#sidebar-wrapper.recolhida {
+  /* ...a largura da sidebar diminui para o modo compacto. */
+  width: 80px;
+}
+
+#page-content-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+#page-content-wrapper::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 10px;
+}
+
+#page-content-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+
+
+
+
+
+
+
+
+
+

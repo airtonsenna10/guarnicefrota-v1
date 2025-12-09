@@ -7,6 +7,96 @@ import Dashboard from './components/Dashboard';
 import Solicitacoes from './pages/Solicitacoes';
 import Autorizacoes from './pages/Autorizacoes';
 import Viagens from './pages/Viagens';
+import Veiculos from './pages/veiculo/Veiculos';
+import Manutencoes from './pages/manutencao/Manutencoes';
+import Alertas from './pages/alerta/Alertas';
+import Servidores from './pages/servidor/Servidores';
+import Motoristas from './pages/motorista/Motoristas';
+import Usuarios from './pages/usuario/Usuarios';
+import Setores from './pages/setor/Setores';
+import './App.css';
+
+function App() {
+  const [isSidebarToggled, setSidebarToggled] = useState(false);
+
+  const toggleSidebar = () => {
+    setSidebarToggled(!isSidebarToggled);
+  };
+
+  return (
+    <Router>
+      <div className={`app-container ${isSidebarToggled ? 'sidebar-toggled' : ''}`}>
+        <Topbar toggleSidebar={toggleSidebar} />
+        <div id="wrapper">
+          <Sidebar />
+          <div id="page-content-wrapper">
+            <div className="container-fluid">
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/solicitacoes" element={<Solicitacoes />} />
+                <Route path="/autorizacoes" element={<Autorizacoes />} />
+                <Route path="/viagens" element={<Viagens />} />
+                <Route path="/cadastro/veiculos" element={<Veiculos />} />
+                <Route path="/cadastro/manutencoes" element={<Manutencoes />} />
+                <Route path="/cadastro/alertas" element={<Alertas />} />
+                <Route path="/cadastro/servidores" element={<Servidores />} />
+                <Route path="/cadastro/motoristas" element={<Motoristas />} />
+                <Route path="/cadastro/usuarios" element={<Usuarios />} />
+                <Route path="/cadastro/setores" element={<Setores />} />
+              </Routes>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+codigo 1
+
+
+
+
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Sidebar from './components/Sidebar';
+import Topbar from './components/Topbar';
+import Dashboard from './components/Dashboard';
+import Solicitacoes from './pages/Solicitacoes';
+import Autorizacoes from './pages/Autorizacoes';
+import Viagens from './pages/Viagens';
 // Páginas de Cadastro
 import Veiculos from './pages/Veiculos';
 import Manutencoes from './pages/Manutencoes';
@@ -36,7 +126,7 @@ function App() {
               <Route path="/solicitacoes" element={<Solicitacoes />} />
               <Route path="/autorizacoes" element={<Autorizacoes />} />
               <Route path="/viagens" element={<Viagens />} />
-              {/* Rotas de Cadastro */}
+              {/* Rotas de Cadastro 
               <Route path="/cadastro/veiculos" element={<Veiculos />} />
               <Route path="/cadastro/manutencoes" element={<Manutencoes />} />
               <Route path="/cadastro/alertas" element={<Alertas />} />
@@ -58,19 +148,7 @@ export default App;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-/*
-codigo 1
+codigo 2
 
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
@@ -123,7 +201,7 @@ export default App;
 
 /*
 
-codigo-2
+codigo-3
 
 
 import React, { useState } from 'react';
