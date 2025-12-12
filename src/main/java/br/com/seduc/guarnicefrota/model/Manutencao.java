@@ -2,6 +2,7 @@ package br.com.seduc.guarnicefrota.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "tb08_manutencao")
@@ -13,7 +14,7 @@ public class Manutencao {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "fk_veiculo", nullable = false)
+    @JoinColumn(name = "fk_idveiculo", nullable = false)
     private Veiculo veiculo;
 
     @Column(name = "tipo_manutencao", length = 100)
@@ -28,14 +29,18 @@ public class Manutencao {
     @Column(name = "data_fim")
     private LocalDate dataFim;
 
+    @Column(name = "horario_marcado", columnDefinition = "TIME")
+    private LocalTime horarioMarcado; // Use LocalTime para mapear TIME
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status_manutencao")
     private StatusManutencao status;
 
     public enum StatusManutencao {
-        concluida,
-        em_andamento,
-        cancelada
+        CONCLUIDA,
+        NAO_INICIADO,
+        EM_ANDAMENTO,
+        CANCELADA;
     }
 
     // Getters and setters
@@ -86,6 +91,14 @@ public class Manutencao {
 
     public void setDataFim(LocalDate dataFim) {
         this.dataFim = dataFim;
+    }
+
+    public LocalTime getHorarioMarcado() {
+        return horarioMarcado;
+    }
+
+    public void setHorarioMarcado(LocalTime horarioMarcado) {
+        this.horarioMarcado = horarioMarcado;
     }
 
     public StatusManutencao getStatus() {

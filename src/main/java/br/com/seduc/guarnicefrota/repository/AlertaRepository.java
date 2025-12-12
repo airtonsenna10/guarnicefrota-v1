@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface AlertaRepository extends JpaRepository<Alerta, Long> {
-    List<Alerta> findByVeiculoAssociado(Veiculo veiculo);
+    List<Alerta> findByVeiculo(Veiculo veiculo);
 }

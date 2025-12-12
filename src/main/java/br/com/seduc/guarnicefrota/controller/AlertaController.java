@@ -51,7 +51,7 @@ public class AlertaController {
             alerta.setTipo(alertaDetails.getTipo());
             alerta.setDescricao(alertaDetails.getDescricao());
             alerta.setData(alertaDetails.getData());
-            alerta.setVeiculoAssociado(alertaDetails.getVeiculoAssociado()); // Cuidado ao atualizar relacionamentos assim
+            alerta.setVeiculo(alertaDetails.getVeiculo()); // Cuidado ao atualizar relacionamentos assim
             Alerta updatedAlerta = alertaService.salvarAlerta(alerta);
             return ResponseEntity.ok(updatedAlerta);
         } else {

@@ -1,0 +1,182 @@
+/* Container Geral */
+.usuarios-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 60px); 
+}
+
+/* Cabeçalho */
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.page-title {
+    color: #343a40;
+    font-size: 1.8em;
+}
+
+.btn-novo-cadastro {
+    background-color: #28a745; 
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s;
+}
+
+.btn-novo-cadastro:hover {
+    background-color: #1e7e34;
+}
+
+/* Área de Pesquisa/Filtros */
+.area-pesquisa-container {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 25px;
+}
+
+.area-pesquisa-titulo {
+    color: #495057;
+    margin-top: 0;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.filtros-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.filtro-item {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+    flex-grow: 1;
+}
+
+.filtro-item label {
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: #6c757d;
+}
+
+.filtro-input {
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+/* Tabela */
+.tabela-wrapper {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+}
+
+.tabela-usuarios {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabela-usuarios th, .tabela-usuarios td {
+    border: 1px solid #dee2e6;
+    padding: 12px;
+    text-align: left;
+}
+
+.tabela-usuarios thead th {
+    background-color: #e9ecef;
+    color: #343a40;
+    font-weight: 600;
+}
+
+.tabela-usuarios tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.tabela-usuarios tbody tr:hover {
+    background-color: #e2e6ea;
+}
+
+.acoes-cell {
+    width: 1%; 
+    white-space: nowrap;
+}
+
+/* Botões de Ação na Tabela */
+.btn-acao {
+    padding: 8px;
+    margin-right: 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-acao.visualizar {
+    background-color: #17a2b8; 
+    color: white;
+}
+
+.btn-acao.editar {
+    background-color: #ffc107; 
+    color: #333;
+}
+
+.btn-acao.excluir {
+    background-color: #dc3545; 
+    color: white;
+}
+
+/* Status Pill */
+.status-pill {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 0.85em;
+    text-align: center;
+}
+
+.status-ativo {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-inativo {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.perfil-pill {
+    padding: 5px 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.tabela-vazia-mensagem {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+    font-style: italic;
+}

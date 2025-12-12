@@ -1,11 +1,11 @@
-/* Estrutura da Página */
-.alertas-container {
+/* Container Geral */
+.servidores-container {
     padding: 20px;
     background-color: #f8f9fa;
-    min-height: calc(100vh - 60px); /* Ajustar ao layout principal */
+    min-height: calc(100vh - 60px); 
 }
 
-/* Cabeçalho e Botão */
+/* Cabeçalho */
 .header-container {
     display: flex;
     justify-content: space-between;
@@ -20,7 +20,8 @@
     font-size: 1.8em;
 }
 
-.btn-nova-solicitacao {
+.btn-novo-cadastro {
+    /*background-color: #28a745;  Verde para Novo Cadastro */
     background-color: #007bff;
     color: white;
     padding: 10px 15px;
@@ -34,7 +35,7 @@
     transition: background-color 0.3s;
 }
 
-.btn-nova-solicitacao:hover {
+.btn-novo-cadastro:hover {
     background-color: #0056b3;
 }
 
@@ -93,33 +94,33 @@
     overflow-x: auto;
 }
 
-.tabela-alertas {
+.tabela-servidores {
     width: 100%;
     border-collapse: collapse;
 }
 
-.tabela-alertas th, .tabela-alertas td {
+.tabela-servidores th, .tabela-servidores td {
     border: 1px solid #dee2e6;
     padding: 12px;
     text-align: left;
 }
 
-.tabela-alertas thead th {
+.tabela-servidores thead th {
     background-color: #e9ecef;
     color: #343a40;
     font-weight: 600;
 }
 
-.tabela-alertas tbody tr:nth-child(even) {
+.tabela-servidores tbody tr:nth-child(even) {
     background-color: #f8f9fa;
 }
 
-.tabela-alertas tbody tr:hover {
+.tabela-servidores tbody tr:hover {
     background-color: #e2e6ea;
 }
 
 .acoes-cell {
-    width: 1%; /* Garante que a coluna de ações seja estreita */
+    width: 1%; 
     white-space: nowrap;
 }
 
@@ -133,6 +134,11 @@
     font-size: 14px;
 }
 
+.btn-acao.visualizar {
+    background-color: #17a2b8; /* Azul claro */
+    color: white;
+}
+
 .btn-acao.editar {
     background-color: #ffc107; /* Amarelo */
     color: #333;
@@ -141,6 +147,30 @@
 .btn-acao.excluir {
     background-color: #dc3545; /* Vermelho */
     color: white;
+}
+
+/* Status Pill */
+.status-pill {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 0.85em;
+    text-align: center;
+}
+
+.status-ativo {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-inativo {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-afastado {
+    background-color: #fff3cd;
+    color: #856404;
 }
 
 .tabela-vazia-mensagem {
@@ -154,7 +184,7 @@
 /* --- Estrutura Principal --- 
 .solicitacoes-container {
   padding: 2rem;
-  /*background-color: #f9fafb; /* Fundo ligeiramente acinzentado 
+  background-color: #f9fafb; /* Fundo ligeiramente acinzentado 
   min-height: 100vh;
 }
 
@@ -205,7 +235,7 @@
   font-size: 1.25rem;
   font-weight: 600;
   color: #374151;
-  margin: 0 0 1.5rem 0; /* Remove margem superior e adiciona inferior 
+  margin: 0 0 1.5rem 0; /* Remove margem superior e adiciona inferior
 }
 
 /* --- Filtros --- 

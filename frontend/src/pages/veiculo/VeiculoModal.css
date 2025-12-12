@@ -14,8 +14,7 @@ interação com o conteúdo da página principal. É o mecanismo que centraliza 
   z-index: 1000; /* Garante que o overlay fique acima de todos os outros elementos da página */
 }
 
-
-
+/* Função: Estiliza a caixa do modal (aparência e tamanho) que contém o formulário de cadastro de veículos. */
 .modal-content {
   background-color: #fff; /* Fundo branco para a caixa do modal */
   padding: 20px; /* Espaçamento interno */
@@ -25,40 +24,33 @@ interação com o conteúdo da página principal. É o mecanismo que centraliza 
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra suave para destacá-lo */
   position: relative; /* Necessário para posicionar o botão de fechar (se for absolute) */
 
-  /* Ajuste de Rolagem (Adicionado/Confirmado) */
+  /* Ajuste de Rolagem (O ajuste de max-height e overflow-y: auto (garante que, se o conteúdo for grande, 
+  a caixa role em vez de sair da tela.)*/
   max-height: 90vh; /* Limita a altura máxima a 90% da altura visível da tela */
   overflow-y: auto; /* Adiciona a barra de rolagem vertical se o conteúdo exceder o max-height */
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+/*Função: Estiliza o título do modal */
 .modal-content h2 {
   margin-top: 0;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem; /* Espaçamento abaixo do título */
   color: #333;
-  text-align: center;
+  text-align: center; /* Centraliza o texto do título */
 }
 
+/* Função: Estiliza o formulário dentro do modal, organizando os campos em uma grade responsiva. */
 .form-grid {
-  display: grid;
+  display: grid; /* Habilita o CSS Grid para layout de colunas */
+  /* Cria colunas que cabem no espaço: mínimo de 250px, máximo 1 fração (1fr). 
+     Isso garante que, se houver espaço, ele cria até 3 colunas (800px / 250px ≈ 3) */
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
-  gap: 1rem;
+  gap: 1rem; /* Espaçamento entre as células do grid (espaçamento entre os campos) */
 }
 
+/* Função: Estiliza cada grupo de formulário (rótulo + campo de entrada) */
 .form-group {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Coloca a label e o input um em cima do outro */
 }
 
 .form-group label {
@@ -69,30 +61,33 @@ interação com o conteúdo da página principal. É o mecanismo que centraliza 
 
 .form-group input,
 .form-group select {
-  padding: 0.75rem;
+  padding: 0.75rem; /* Aumenta o tamanho do campo para melhor usabilidade */
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
-  transition: border-color 0.2s ease-in-out;
+  transition: border-color 0.2s ease-in-out; /* Transição suave para o efeito de foco */
 }
 
 .form-group input:focus,
 .form-group select:focus {
-  border-color: #007bff;
-  outline: none;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  border-color: #007bff; /* Borda fica azul ao focar */
+  outline: none; /* Remove a borda padrão do navegador */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Adiciona um brilho azul ao focar */
 }
 
+/* (.modal-actions) Função: Estiliza e posiciona os botões "Cancelar" e "Salvar" no canto inferior direito, 
+separados do corpo do formulário por uma linha. */
 .modal-actions {
-  display: flex;
-  justify-content: flex-end;
+  display: flex; /* Habilita o Flexbox */
+  justify-content: flex-end; /* Alinha os botões à direita (final do eixo principal) */
   margin-top: 2rem;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #eee; /* Linha separadora acima dos botões */
   padding-top: 1rem;
 }
 
+/* Estiliza os botões dentro de .modal-actions */
 .modal-actions button {
-  margin-left: 0.75rem;
+  margin-left: 0.75rem; /* Espaçamento entre os botões */
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 4px;
@@ -101,6 +96,7 @@ interação com o conteúdo da página principal. É o mecanismo que centraliza 
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
+/* Estilo do botão Cancelar */
 .modal-actions button[type="button"] { /* Cancel button */
   background-color: #6c757d;
   color: #fff;
@@ -110,6 +106,7 @@ interação com o conteúdo da página principal. É o mecanismo que centraliza 
   background-color: #5a6268;
 }
 
+/* Estilo do botão Salvar */
 .modal-actions button[type="submit"] {
   background-color: #007bff;
   color: #fff;

@@ -41,6 +41,6 @@ public class AlertaServiceImpl implements AlertaService {
 
     @Override
     public List<Alerta> buscarAlertasPorVeiculoAssociado(Veiculo veiculo) {
-        return alertaRepository.findByVeiculoAssociado(veiculo);
+        return alertaRepository.findByVeiculo(veiculo);
     }
 }

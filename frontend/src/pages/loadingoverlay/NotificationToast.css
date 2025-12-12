@@ -1,0 +1,42 @@
+.notification-toast {
+    position: fixed;
+    bottom: 20px; /* Posição no topo da tela */
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    z-index: 10000; /* Garante que fique acima de tudo */
+    opacity: 1;
+    transition: opacity 0.8s ease-in-out;
+}
+
+.toast-success {
+    background-color: #28a745; /* Verde para sucesso */
+}
+
+.toast-error {
+    background-color: #dc3545; /* Vermelho para erro */
+}
+
+.toast-message {
+    margin: 0;
+    font-weight: 500;
+}
+
+.toast-icon {
+    font-size: 1.2em;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5em;
+    cursor: pointer;
+    line-height: 1;
+    margin-left: 10px;
+}

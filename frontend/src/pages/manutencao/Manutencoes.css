@@ -114,10 +114,10 @@
 }
 
 .tabela-manutencao th {
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #6b7280;
-  text-transform: uppercase;
+  /*text-transform: uppercase;*/
   letter-spacing: 0.05em;
   background-color: #f9fafb;
 }
@@ -143,17 +143,98 @@
   letter-spacing: 0.5px;
 }
 
+.status-concluida {
+  background-color: #aaeac9; /* Fundo verde claro */
+  color: #065f46;
+}
+
+
 .status-aguardando {
   background-color: #fef3c7; /* Fundo amarelo claro */
   color: #92400e; /* Texto amarelo escuro */
 }
 
-.status-aprovado {
-  background-color: #dbeafe; /* Fundo azul claro */
-  color: #1e40af; /* Texto azul escuro */
-}
-
 .status-rejeitado {
   background-color: #fee2e2; /* Fundo vermelho claro */
   color: #991b1b; /* Texto vermelho escuro */
+}
+
+/* --- Botões de Ação na Tabela --- */
+/* Estilo para a célula de ações, garantindo alinhamento central */
+.tabela-manutencao .acoes-cell {
+    text-align: center;
+    white-space: nowrap; 
+    padding: 0.5rem 0.25rem; 
+}
+
+/* Estilo base para todos os botões de ação */
+.action-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.4rem;
+    margin: 0 0.15rem; 
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+    font-size: 1.1rem; 
+}
+
+/* Efeito de hover geral */
+.action-button:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* 1. Botão de Visualizar (Olho) */
+.view-button {
+    color: #4a5568; 
+}
+.view-button:hover {
+    color: #2b6cb0; 
+    background-color: rgba(66, 153, 225, 0.2);
+}
+
+/* 2. Botão de Editar (Lápis) */
+.edit-button {
+    color: #d69e2e; 
+}
+.edit-button:hover {
+    color: #b7791f;
+    background-color: rgba(221, 107, 32, 0.2);
+}
+
+/* 3. Botão de Excluir (Lixeira) */
+.delete-button {
+    color: #e53e3e; 
+}
+.delete-button:hover {
+    color: #c53030;
+    background-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Estilos de Status (Adaptados) */
+.status-pill {
+    padding: 0.3rem 0.6rem;
+    border-radius: 9999px; /* Pill shape */
+    font-weight: 600;
+    font-size: 0.75rem;
+    display: inline-block;
+    text-transform: uppercase;
+}
+
+/* Adaptando as cores dos Veículos para Manutenções */
+.status-aguardando { /* Não Iniciado */
+    background-color: #fbd38d; /* Amarelo claro */
+    color: #975a16;
+}
+.status-em-uso { /* Em Andamento */
+    background-color: #63b3ed; /* Azul claro */
+    color: #2c5282;
+}
+.status-disponivel { /* Concluída */
+    background-color: #68d391; /* Verde claro */
+    color: #22543d;
+}
+.status-inativo { /* Cancelada */
+    background-color: #feb2b2; /* Vermelho claro */
+    color: #9b2c2c;
 }

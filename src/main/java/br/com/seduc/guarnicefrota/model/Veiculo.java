@@ -3,15 +3,25 @@ package br.com.seduc.guarnicefrota.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "tb06_veiculo")
 public class Veiculo {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_veiculo")
     private Long id;
+
+    //ADICIONE O RELACIONAMENTO ONE-TO-MANY AQUI:
+    @OneToMany(mappedBy = "veiculo", fetch = FetchType.LAZY)
+    @JsonIgnore // <--- Isso corrige o Erro 500 causado pelo loop de serialização!
+    private List<Manutencao> manutencoes;
+
 
     @Column(length = 45)
     private String modelo;
@@ -34,18 +44,15 @@ public class Veiculo {
     private int capacidade;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "enum('disponivel','em_manutençao','em_uso','inativo')")
     private StatusVeiculo status;
 
     @Column(name = "data_aquisicao")
     private LocalDate dataAquisicao;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "enum('alugado','proprio','cedido')")
     private PropriedadeVeiculo propriedade;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "enum('alcool','diesel','eletrico','flex','gasolina','gnv','hibrido','hidrogenio')")
     private CategoriaVeiculo categoria;
 
     @Column(precision = 5, scale = 2)
@@ -54,7 +61,7 @@ public class Veiculo {
     @Column(name = "ultima_revisao")
     private LocalDate ultimaRevisao;
 
-    // ENUMS do banco
+    /* 
     public enum CategoriaVeiculo {
         alcool,diesel,eletrico,flex,gasolina,gnv,hibrido,hidrogenio
     }
@@ -62,7 +69,7 @@ public class Veiculo {
     public enum PropriedadeVeiculo {
         alugado,proprio,cedido
     }
-
+    */
     // Getters and Setters
 
     public Long getId() {
@@ -175,5 +182,14 @@ public class Veiculo {
 
     public void setUltimaRevisao(LocalDate ultimaRevisao) {
         this.ultimaRevisao = ultimaRevisao;
+    }
+
+    // 🚨 ADICIONE GETTER E SETTER PARA O NOVO CAMPO:
+    public List<Manutencao> getManutencoes() {
+        return manutencoes;
+    }
+
+    public void setManutencoes(List<Manutencao> manutencoes) {
+        this.manutencoes = manutencoes;
     }
 }

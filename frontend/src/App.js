@@ -10,10 +10,10 @@ import Viagens from './pages/Viagens';
 import Veiculos from './pages/veiculo/Veiculos';
 import Manutencoes from './pages/manutencao/Manutencoes';
 import Alertas from './pages/alerta/Alertas';
-import Servidores from './pages/servidor/Servidores';
-import Motoristas from './pages/motorista/Motoristas';
-import Usuarios from './pages/usuario/Usuarios';
-import Setores from './pages/setor/Setores';
+import Servidores from './pages/servidor/Servidor';
+import Motoristas from './pages/motorista/Motorista';
+import Usuarios from './pages/usuario/Usuario';
+import Setores from './pages/setor/Setor';
 import './App.css';
 
 function App() {

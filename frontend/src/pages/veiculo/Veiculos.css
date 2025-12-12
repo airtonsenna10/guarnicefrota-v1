@@ -159,34 +159,56 @@
   color: hsl(359, 64%, 53%); /* Texto */
 }
 
-
-
-
-
-/* --- Pílulas de Status --- 
-.status-pill {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border-radius: 9999px; /* Formato de pílula 
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+/* --- Botões de Ação na Tabela --- */
+/* Estilo para a célula de ações, garantindo alinhamento central */
+.tabela-veiculos .acoes-cell {
+    text-align: center;
+    white-space: nowrap; /* Impede que os botões quebrem linha */
+    padding: 0.5rem 0.25rem; /* Ajuste o padding para não ser muito grande */
 }
 
-.status-aguardando {
-  background-color: #fef3c7; /* Fundo amarelo claro 
-  color: #92400e; /* Texto amarelo escuro 
+/* Estilo base para todos os botões de ação */
+.action-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.4rem;
+    margin: 0 0.15rem; /* Pequeno espaçamento entre os botões */
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+    font-size: 1.1rem; /* Tamanho do ícone */
 }
 
-.status-aprovado {
-  background-color: #dbeafe; /* Fundo azul claro 
-  color: #1e40af; /* Texto azul escuro 
+/* Efeito de hover geral */
+.action-button:hover {
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
-.status-rejeitado {
-  background-color: #fee2e2; /* Fundo vermelho claro 
-  color: #991b1b; /* Texto vermelho escuro 
+/* 1. Botão de Visualizar (Olho) - Geralmente uma cor neutra ou primária */
+.view-button {
+    color: #4a5568; /* Cinza escuro ou cor principal */
+}
+.view-button:hover {
+    color: #2b6cb0; /* Azul escuro (ou a cor primária do seu sistema) */
+    background-color: rgba(66, 153, 225, 0.2);
 }
 
-*/
+/* 2. Botão de Editar (Lápis) - Geralmente uma cor de alerta/aviso */
+.edit-button {
+    color: #d69e2e; /* Amarelo/Laranja */
+}
+.edit-button:hover {
+    color: #b7791f;
+    background-color: rgba(221, 107, 32, 0.2);
+}
+
+/* 3. Botão de Excluir (Lixeira) - Geralmente uma cor de perigo/vermelho */
+.delete-button {
+    color: #e53e3e; /* Vermelho */
+}
+.delete-button:hover {
+    color: #c53030;
+    background-color: rgba(239, 68, 68, 0.2);
+}
+
+

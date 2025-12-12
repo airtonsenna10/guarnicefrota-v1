@@ -9,7 +9,11 @@ public class Alerta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id_alerta;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_idveiculo")
+    private Veiculo veiculo;
 
     @Column(nullable = false)
     private String tipo;
@@ -20,18 +24,16 @@ public class Alerta {
     @Column(nullable = false)
     private LocalDate data;
 
-    @ManyToOne
-    @JoinColumn(name = "veiculo_id")
-    private Veiculo veiculoAssociado;
+    
 
     // Getters and setters
 
     public Long getId() {
-        return id;
+        return id_alerta;
     }
 
     public void setId(Long id) {
-        this.id = id;
+        this.id_alerta = id;
     }
 
     public String getTipo() {
@@ -58,11 +60,11 @@ public class Alerta {
         this.data = data;
     }
 
-    public Veiculo getVeiculoAssociado() {
-        return veiculoAssociado;
+    public Veiculo getVeiculo() {
+        return veiculo;
     }
 
-    public void setVeiculoAssociado(Veiculo veiculoAssociado) {
-        this.veiculoAssociado = veiculoAssociado;
+    public void setVeiculo(Veiculo veiculo) {
+        this.veiculo = veiculo;
     }
 }
