@@ -1,3 +1,334 @@
+
+import React, { useState, useEffect } from 'react';
+import './VeiculoModal.css';
+import LoadingOverlay from '../loadingoverlay/LoadingOverlay'; 
+import { sendData } from '../../service/api';
+import { FaTimes } from 'react-icons/fa';
+
+// Recebe as novas props: veiculoToEdit (dados) e mode ('new', 'view', 'edit')
+const VeiculoModal = ({ onClose, onVeiculoSaved, veiculoToEdit, mode }) => {
+    
+    // 🔑 NOVAS VARIÁVEIS DE ESTADO E LÓGICA
+    const isViewMode = mode === 'view';
+    const isEditMode = mode === 'edit';
+    const isNewMode = mode === 'new';
+    
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Define o título do modal
+    const modalTitle = isViewMode ? 'Dados Cadastrais do Veículo' : 
+                       isEditMode ? 'Editar Veículo' : 
+                       'Novo Cadastro de Veículo';
+
+
+    // ----------------------------------------------------------------------
+    // 1. ESTADO E useEffect (PREENCHIMENTO DE DADOS)
+    // ----------------------------------------------------------------------
+
+    const initialFormData = {
+        modelo: '', marca: '', placa: '', tipoVeiculo: 'Carro', 
+        capacidade: '', status: 'Disponível', chassi: '', renavam: '', 
+        dataAquisicao: '', propriedade: 'Próprio', categoria: 'Flex', 
+        kml: '', ultimaRevisao: '',
+    };
+    const [formData, setFormData] = useState(initialFormData);
+
+    useEffect(() => {
+        // Preenche o formulário se estiver em modo Edição ou Visualização
+        if (veiculoToEdit && (isEditMode || isViewMode)) {
+            // NOTE: Ajuste a normalização do status, propriedade, e categoria para exibir no dropdown
+            // Ex: EM_MANUTENCAO deve voltar a ser "Em Manutenção"
+            
+            // Função auxiliar para reverter o ENUM para o texto legível (reverte o normalizeEnum do handleSubmit)
+            const reverseNormalizeEnum = (value) => {
+                if (!value) return '';
+                // Ex: "EM_MANUTENCAO" -> "EM MANUTENCAO" -> "Em Manutencao"
+                return value.replace(/_/g, ' ').toLowerCase().replace(/(^|\s)\S/g, l => l.toUpperCase());
+            };
+            
+            setFormData({
+                ...veiculoToEdit,
+                // Mapeamento especial para ENUMs que foram formatados
+                status: reverseNormalizeEnum(veiculoToEdit.status),
+                propriedade: reverseNormalizeEnum(veiculoToEdit.propriedade),
+                categoria: reverseNormalizeEnum(veiculoToEdit.categoria),
+                // km/l e capacidade já são números/strings
+                capacidade: veiculoToEdit.capacidade || '',
+                kml: veiculoToEdit.kml || '',
+            });
+        } else if (isNewMode) {
+            // Zera o formulário para novo cadastro
+            setFormData(initialFormData);
+        }
+    }, [veiculoToEdit, mode, isEditMode, isViewMode, isNewMode]);
+
+
+    // ----------------------------------------------------------------------
+    // 2. handleChange (Desabilitar no modo Visualização)
+    // ----------------------------------------------------------------------
+    const handleChange = (e) => {
+        // 🔑 NOVIDADE: Ignora se for Visualização
+        if (isViewMode) return; 
+        
+        const { id, value } = e.target;
+        // ... (resto da lógica de capitalização e remoção de espaços mantida) ...
+        let newValue = value; // Valor que será processado
+
+        const identificationFields = ['placa', 'chassi', 'renavam'];
+        const descriptionFields = ['modelo', 'marca', 'tipoVeiculo'];
+
+        if (identificationFields.includes(id)) {
+            newValue = newValue
+                .toUpperCase()
+                .trim()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/\s/g, ''); 
+        } else if (descriptionFields.includes(id)) {
+            newValue = newValue.toUpperCase().trim();
+        }
+
+        setFormData(prev => ({ ...prev, [id]: newValue }));
+    };
+
+    // ----------------------------------------------------------------------
+    // 3. handleSubmit (POST vs PUT)
+    // ----------------------------------------------------------------------
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        
+        // Não faz nada se for Visualização
+        if (isViewMode) return; 
+        
+        setIsSubmitting(true);
+
+        const normalizeEnum = (value) => {
+            if (!value) return '';
+            return value.toUpperCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/\s/g, '_'); 
+        };
+
+        const kmlValue = formData.kml ? String(formData.kml).replace(',', '.') : null;
+
+        const dataToSend = {
+            // Em modo Edição (PUT), precisamos do ID no corpo da requisição
+            ...(isEditMode && veiculoToEdit.id && {id: veiculoToEdit.id}),
+            ...formData,
+            tipoVeiculo: formData.tipoVeiculo ? formData.tipoVeiculo.toUpperCase() : '',
+            status: normalizeEnum(formData.status), 
+            propriedade: normalizeEnum(formData.propriedade),
+            categoria: normalizeEnum(formData.categoria),
+            kml: kmlValue ? parseFloat(kmlValue) : null,
+        };
+        
+        // Define o método e a URL
+        const method = isEditMode ? 'PUT' : 'POST';
+        const url = isEditMode ? `/api/veiculos/${veiculoToEdit.id}` : '/api/veiculos';
+        
+        const successMsg = isEditMode ? "Veículo atualizado com sucesso!" : "Veículo cadastrado com sucesso!";
+
+        try {
+            await sendData(url, method, dataToSend);
+            
+            setIsSubmitting(false);
+            onVeiculoSaved(successMsg, 'success');
+            onClose();
+
+        } catch (error) {
+            console.error(`Erro ao ${isEditMode ? 'atualizar' : 'cadastrar'} veículo:`, error);
+            setIsSubmitting(false);
+            
+            const errorMsg = `Erro ao ${isEditMode ? 'atualizar' : 'cadastrar'} veículo. Verifique os dados.`;
+            onVeiculoSaved(errorMsg, 'error');
+        } 
+    };
+
+    // ----------------------------------------------------------------------
+    // 4. Renderização do Modo Visualização
+    // ----------------------------------------------------------------------
+
+    const renderViewMode = () => (
+        <div className="view-mode-details form-grid">
+            <div className="form-group">
+                <label>Modelo</label>
+                <p>{formData.modelo}</p>
+            </div>
+            <div className="form-group">
+                <label>Marca</label>
+                <p>{formData.marca}</p>
+            </div>
+            <div className="form-group">
+                <label>Placa</label>
+                <p>{formData.placa}</p>
+            </div>
+            <div className="form-group">
+                <label>Tipo de Veículo</label>
+                <p>{formData.tipoVeiculo}</p>
+            </div>
+            <div className="form-group">
+                <label>Capacidade</label>
+                <p>{formData.capacidade}</p>
+            </div>
+            <div className="form-group">
+                <label>Status</label>
+                <p>{formData.status}</p>
+            </div>
+            <div className="form-group">
+                <label>Chassi</label>
+                <p>{formData.chassi}</p>
+            </div>
+            <div className="form-group">
+                <label>Renavam</label>
+                <p>{formData.renavam}</p>
+            </div>
+            <div className="form-group">
+                <label>Data da Aquisição</label>
+                <p>{formData.dataAquisicao}</p>
+            </div>
+            <div className="form-group">
+                <label>Propriedade</label>
+                <p>{formData.propriedade}</p>
+            </div>
+            <div className="form-group">
+                <label>Categoria</label>
+                <p>{formData.categoria}</p>
+            </div>
+            <div className="form-group">
+                <label>Km/l</label>
+                <p>{formData.kml}</p>
+            </div>
+            <div className="form-group">
+                <label>Última Revisão</label>
+                <p>{formData.ultimaRevisao}</p>
+            </div>
+        </div>
+    );
+
+    // Opções dos dropdowns (mantidas)
+    const tiposVeiculo = ["Carro", "Utilitário", "Moto", "Van", "Micro-ônibus", "Ônibus", "Caminhão"];
+    const statusOpcoes = ["Disponível", "Em Uso", "Em Manutenção", "Inativo"];
+    const propriedades = ["Próprio", "Cedido", "Alugado"];
+    const categorias = ["Elétrico", "Híbrido", "Flex", "Álcool", "Gasolina", "Diesel", "GNV"];
+
+    
+    // ----------------------------------------------------------------------
+    // 5. Renderização Final do Modal
+    // ----------------------------------------------------------------------
+    
+    return (
+        <div className="modal-overlay">
+            {isSubmitting && <LoadingOverlay message={isEditMode ? "Atualizando..." : "Salvando..."} />}
+
+            <div className="modal-content">
+                <h2>{modalTitle}</h2>
+                {/*<button className="modal-close-btn" onClick={onClose}>&times;</button>*/}
+                <button className="modal-close-btn" onClick={onClose} title="Fechar" ><FaTimes /> </button>
+                
+                {/* 🔑 Renderiza o Modo Visualização OU o Formulário */}
+                {isViewMode ? renderViewMode() : (
+                    <form className='form-grid-principal' onSubmit={handleSubmit}>
+                        <div className="form-grid">
+                            
+                            <div className="form-group">
+                                <label htmlFor="modelo">Modelo</label>
+                                <input type="text" id="modelo" value={formData.modelo} onChange={handleChange} required disabled={isViewMode} />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="marca">Marca</label>
+                                <input type="text" id="marca" value={formData.marca} onChange={handleChange} required disabled={isViewMode} />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="placa">Placa</label>
+                                <input type="text" id="placa" value={formData.placa} onChange={handleChange} required maxLength="8" disabled={isViewMode} /> 
+                            </div>
+                            
+                            <div className="form-group">
+                                <label htmlFor="tipoVeiculo">Tipo de Veículo</label>
+                                <select id="tipoVeiculo" value={formData.tipoVeiculo} onChange={handleChange} disabled={isViewMode}>
+                                    {tiposVeiculo.map(tipo => (<option key={tipo} value={tipo}>{tipo}</option>))}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="capacidade">Capacidade</label>
+                                <input type="number" id="capacidade" value={formData.capacidade} onChange={handleChange} required min="1" disabled={isViewMode} />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="status">Status</label>
+                                <select id="status" value={formData.status} onChange={handleChange} disabled={isViewMode}>
+                                    {statusOpcoes.map(s => (<option key={s} value={s}>{s}</option>))}
+                                </select>
+                            </div>
+                            
+                            <div className="form-group">
+                                <label htmlFor="chassi">Chassi</label>
+                                <input type="text" id="chassi" value={formData.chassi} onChange={handleChange} maxLength="20" disabled={isViewMode} />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="renavam">Renavam</label>
+                                <input type="text" id="renavam" value={formData.renavam} onChange={handleChange} maxLength="11" disabled={isViewMode} />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label htmlFor="dataAquisicao">Data da Aquisição</label>
+                                <input type="date" id="dataAquisicao" value={formData.dataAquisicao} onChange={handleChange} disabled={isViewMode} />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label htmlFor="propriedade">Propriedade</label>
+                                <select id="propriedade" value={formData.propriedade} onChange={handleChange} disabled={isViewMode}>
+                                    {propriedades.map(p => (<option key={p} value={p}>{p}</option>))}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="categoria">Categoria</label>
+                                <select id="categoria" value={formData.categoria} onChange={handleChange} disabled={isViewMode}>
+                                    {categorias.map(c => (<option key={c} value={c}>{c}</option>))}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="kml">Km/l</label>
+                                <input type="number" id="kml" value={formData.kml} onChange={handleChange} step="0.01" disabled={isViewMode} />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="ultimaRevisao">Última Revisão</label>
+                                <input type="date" id="ultimaRevisao" value={formData.ultimaRevisao} onChange={handleChange} disabled={isViewMode} />
+                            </div>
+
+                        </div>
+                        <div className="modal-actions">
+                            <button type="button" onClick={onClose} disabled={isSubmitting}>Cancelar</button>
+                            {/* Oculta o botão Salvar/Atualizar se for Visualização */}
+                            {(!isViewMode) && (
+                                <button type="submit" disabled={isSubmitting}>
+                                    {isEditMode ? 'Salvar Edição' : 'Salvar'}
+                                </button>
+                            )}
+                        </div>
+                    </form>
+                )}
+                
+                {/* 🔑 Botão Fechar/Cancelar no modo Visualização */}
+                {isViewMode && (
+                    <div className="modal-actions">
+                        <button type="button" onClick={onClose}>Fechar</button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default VeiculoModal;
+
+
+
+
+
+/*codigo - 1 funcionando antes das alterações
+
 import React, { useState } from 'react';
 import './VeiculoModal.css';
 import LoadingOverlay from '../loadingoverlay/LoadingOverlay'; 
@@ -113,9 +444,9 @@ const VeiculoModal = ({ onClose, onVeiculoSaved }) => {
             <div className="modal-content">
                 <h2>Novo Cadastro de Veículo</h2>
                 <form onSubmit={handleSubmit}>
-                    {/* .................. */}
+                    {/* .................. 
                     <div className="form-grid">
-                        {/*............... */}
+                        {/*............... 
                         <div className="form-group">
                              <label htmlFor="modelo">Modelo</label>
                              <input type="text" id="modelo" value={formData.modelo} onChange={handleChange} required />
@@ -126,7 +457,7 @@ const VeiculoModal = ({ onClose, onVeiculoSaved }) => {
                         </div>
                         <div className="form-group">
                             <label htmlFor="placa">Placa</label>
-                            {/* O maxLength ajuda a limitar a entrada (opcional) */}
+                            {/* O maxLength ajuda a limitar a entrada (opcional) 
                             <input type="text" id="placa" value={formData.placa} onChange={handleChange} required maxLength="8" /> 
                         </div>
                         
@@ -195,536 +526,22 @@ const VeiculoModal = ({ onClose, onVeiculoSaved }) => {
 
 export default VeiculoModal;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-import React, { useState } from 'react';
-import './VeiculoModal.css';
-import LoadingOverlay from '../loadingoverlay/LoadingOverlay'; 
-import { sendData } from '../../service/api';
-
-//Recebe a prop onVeiculoSaved do componente pai
-const VeiculoModal = ({ onClose, onVeiculoSaved }) => {
-    
-    const [formData, setFormData] = useState({
-        // ... (campos do formulário)
-        modelo: '', marca: '', placa: '', tipoVeiculo: 'Carro', 
-        capacidade: '', status: 'Disponível', chassi: '', renavam: '', 
-        dataAquisicao: '', propriedade: 'Próprio', categoria: 'Flex', 
-        kml: '', ultimaRevisao: '',
-    });
-    
-    // Estado para controlar o overlay de loading
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    
-    
-    // Atualiza o estado quando um campo muda
-    const handleChange = (e) => {
-        const { id, value } = e.target;
-        setFormData(prev => ({ ...prev, [id]: value }));
-    };
-
-    //  FUNÇÃO PRINCIPAL: Envia dados para o Backend
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-
-        const normalizeEnum = (value) => {
-            // ... (sua lógica de normalização)
-            if (!value) return '';
-            return value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '_');
-        };
-
-        const kmlValue = formData.kml ? String(formData.kml).replace(',', '.') : null;
-
-        const dataToSend = {
-            ...formData,
-            status: normalizeEnum(formData.status), 
-            propriedade: normalizeEnum(formData.propriedade),
-            categoria: normalizeEnum(formData.categoria),
-            kml: kmlValue ? parseFloat(kmlValue) : null,
-        };
-
-        try {
-            await sendData('/api/veiculos', 'POST', dataToSend);
-            
-            setIsSubmitting(false);
-
-            //  CHAMA O CALLBACK DO PAI: O pai exibe o Toast e recarrega a lista
-            onVeiculoSaved("Veículo cadastrado com sucesso!", 'success');
-            
-            // FECHA O MODAL SÓ DEPOIS DE INFORMAR O PAI
-            onClose();
-
-        } catch (error) {
-            console.error("Erro ao salvar veículo:", error);
-
-            setIsSubmitting(false);
-
-            // CHAMA O CALLBACK DO PAI PARA EXIBIR ERRO
-            onVeiculoSaved(` Erro ao cadastrar veículo. Verifique os dados.`, 'error');
-            
-            // O modal fica aberto para o usuário corrigir
-        } 
-    };
-
-    // Opções dos dropdowns (mantidas)
-    const tiposVeiculo = ["Carro", "Utilitário", "Moto", "Van", "Micro-ônibus", "Ônibus", "Caminhão"];
-    const statusOpcoes = ["Disponível", "Em Uso", "Em Manutenção", "Inativo"];
-    const propriedades = ["Próprio", "Cedido", "Alugado"];
-    const categorias = ["Elétrico", "Híbrido", "Flex", "Álcool", "Gasolina", "Diesel", "GNV"];
-
-
-    return (
-        <div className="modal-overlay">
-            {isSubmitting && <LoadingOverlay message="Salvando..." />}
-
-            <div className="modal-content">
-                <h2>Novo Cadastro de Veículo</h2>
-                <form onSubmit={handleSubmit}>
-                
-                    <div className="form-grid">
-                    
-                        <div className="form-group">
-                             <label htmlFor="modelo">Modelo</label>
-                             <input type="text" id="modelo" value={formData.modelo} onChange={handleChange} required />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="marca">Marca</label>
-                            <input type="text" id="marca" value={formData.marca} onChange={handleChange} required />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="placa">Placa</label>
-                            <input type="text" id="placa" value={formData.placa} onChange={handleChange} required />
-                        </div>
-                        
-                        <div className="form-group">
-                            <label htmlFor="tipoVeiculo">Tipo de Veículo</label>
-                            <select id="tipoVeiculo" value={formData.tipoVeiculo} onChange={handleChange}>
-                                {tiposVeiculo.map(tipo => (<option key={tipo} value={tipo}>{tipo}</option>))}
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="capacidade">Capacidade</label>
-                            <input type="number" id="capacidade" value={formData.capacidade} onChange={handleChange} required min="1" />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="status">Status</label>
-                            <select id="status" value={formData.status} onChange={handleChange}>
-                                {statusOpcoes.map(s => (<option key={s} value={s}>{s}</option>))}
-                            </select>
-                        </div>
-                        
-                        <div className="form-group">
-                            <label htmlFor="chassi">Chassi</label>
-                            <input type="text" id="chassi" value={formData.chassi} onChange={handleChange} />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="renavam">Renavam</label>
-                            <input type="text" id="renavam" value={formData.renavam} onChange={handleChange} />
-                        </div>
-                        
-                        <div className="form-group">
-                            <label htmlFor="dataAquisicao">Data da Aquisição</label>
-                            <input type="date" id="dataAquisicao" value={formData.dataAquisicao} onChange={handleChange} />
-                        </div>
-                        
-                        <div className="form-group">
-                            <label htmlFor="propriedade">Propriedade</label>
-                            <select id="propriedade" value={formData.propriedade} onChange={handleChange}>
-                                {propriedades.map(p => (<option key={p} value={p}>{p}</option>))}
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="categoria">Categoria</label>
-                            <select id="categoria" value={formData.categoria} onChange={handleChange}>
-                                {categorias.map(c => (<option key={c} value={c}>{c}</option>))}
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="kml">Km/l</label>
-                            <input type="number" id="kml" value={formData.kml} onChange={handleChange} step="0.01" />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="ultimaRevisao">Última Revisão</label>
-                            <input type="date" id="ultimaRevisao" value={formData.ultimaRevisao} onChange={handleChange} />
-                        </div>
-                    </div>
-                    <div className="modal-actions">
-                        <button type="button" onClick={onClose} disabled={isSubmitting}>Cancelar</button>
-                        <button type="submit" disabled={isSubmitting}>Salvar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
-
-export default VeiculoModal;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*codigo antigo
-
-import React, { useState } from 'react';
-import './VeiculoModal.css';
-import LoadingOverlay from '../loadingoverlay/LoadingOverlay';
-import NotificationToast from '../loadingoverlay/NotificationToast';
-import { sendData } from '../../service/api'; //  Importa a função de POST
-
-// Mapeamento dos campos do formulário para o formato JSON esperado pelo Spring Boot
-const VeiculoModal = ({ onClose }) => {
-    
-    const [formData, setFormData] = useState({
-        // Inicializa todos os campos com valores iniciais/vazios
-        modelo: '',
-        marca: '',
-        placa: '',
-        tipoVeiculo: 'Carro', // Valor padrão
-        capacidade: '',
-        status: 'Disponível', // Valor padrão
-        chassi: '',
-        renavam: '',
-        dataAquisicao: '',
-        propriedade: 'Próprio', // Valor padrão
-        categoria: 'Flex', // Ajuste o valor padrão conforme seu ENUM (Minúsculo para ENUM)
-        kml: '',
-        ultimaRevisao: '', // O campo no seu backend é 'ultimaRevisao'
-    });
-    
-    // Estado para controlar o overlay de loading
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    // Gerencia a Notificação (Toast)
-    const [notification, setNotification] = useState(null);
-
-    // Função para fechar a notificação (passada para o Toast)
-    const dismissNotification = () => setNotification(null);
-    
-    // Atualiza o estado quando um campo muda
-    const handleChange = (e) => {
-        const { id, value } = e.target;
-        setFormData(prev => ({ ...prev, [id]: value }));
-    };
-
-    //  FUNÇÃO PRINCIPAL: Envia dados para o Backend
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-
-        // Função auxiliar para limpar o texto e formatar para o Enum do Java (minúsculas, underscore, sem acento)
-        const normalizeEnum = (value) => {
-            if (!value) return '';
-            return value
-                .toLowerCase()
-                .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove acentos (Ex: 'Próprio' -> 'proprio')
-                .replace(/\s/g, '_'); // Substitui espaços por underscore (Ex: 'em uso' -> 'em_uso')
-        };
-
-        // CORREÇÃO CRÍTICA: Troca a vírgula do KML por ponto para o padrão numérico do JSON/Java
-        const kmlValue = formData.kml ? String(formData.kml).replace(',', '.') : null;
-
-        // Mapeamento final dos ENUMS para o backend (garantindo que estejam em minúsculas)
-        const dataToSend = {
-            ...formData,
-           
-            // 1. CORREÇÃO ENUMS: Normaliza os valores para o formato 'disponivel', 'em_uso', 'proprio', 'eletrico', etc.
-            status: normalizeEnum(formData.status), 
-            propriedade: normalizeEnum(formData.propriedade),
-            categoria: normalizeEnum(formData.categoria),
-            
-            // 2. CORREÇÃO KML: Envia o valor já formatado com ponto decimal
-            kml: kmlValue ? parseFloat(kmlValue) : null,
-            
-           
-        };
-
-        try {
-            // Chama o endpoint de POST do Spring Boot: /api/veiculos
-            const savedVeiculo = await sendData('/api/veiculos', 'POST', dataToSend);
-            
-            // 1. DESATIVA O LOADING (Isso acontece instantaneamente)
-            setIsSubmitting(false);
-
-            // 2. EXIBE O TOAST DE SUCESSO (Não bloqueia o script)
-            setNotification({ message: "Veículo cadastrado com sucesso!", type: 'success' });
-            
-            // 3. FECHA O MODAL IMEDIATAMENTE APÓS O SUCESSO
-            onClose();
-
-        } catch (error) {
-            console.error("Erro ao salvar veículo:", error);
-
-            // 1. DESATIVA O LOADING
-            setIsSubmitting(false);
-
-            // 2. EXIBE O TOAST DE ERRO
-            setNotification({ 
-                message: `❌ Erro ao cadastrar veículo. Verifique os dados.`, 
-                type: 'error' 
-            });
-        } 
-    };
-
-    // Opções dos dropdowns (melhor definidas fora do return para organização)
-    const tiposVeiculo = ["Carro", "Utilitário", "Moto", "Van", "Micro-ônibus", "Ônibus", "Caminhão"];
-    const statusOpcoes = ["Disponível", "Em Uso", "Em Manutenção", "Inativo"];
-    const propriedades = ["Próprio", "Cedido", "Alugado"];
-    const categorias = ["Elétrico", "Híbrido", "Flex", "Álcool", "Gasolina", "Diesel", "GNV"];
-
-
-    return (
-        <div className="modal-overlay">
-          {/* Renderiza o overlay de loading APENAS se isSubmitting for TRUE *
-            {isSubmitting && <LoadingOverlay message="Salvando..." />}
-            {/* Renderiza a notificação (Toast) se existir 
-            {notification && 
-                <NotificationToast
-                    message={notification.message}
-                    type={notification.type}
-                    onDismiss={dismissNotification}
-                    duration={6000} //Duração em milissegundos
-                />
-            }
-
-            <div className="modal-content">
-                <h2>Novo Cadastro de Veículo</h2>
-                {/* Conecta a função handleSubmit ao formulário 
-                <form onSubmit={handleSubmit}>
-                    <div className="form-grid">
-                        
-                        {/* INPUTS e SELECTS: Conectados via value e onChange={handleChange} 
-                        <div className="form-group">
-                            <label htmlFor="modelo">Modelo</label>
-                            <input type="text" id="modelo" value={formData.modelo} onChange={handleChange} required />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="marca">Marca</label>
-                            <input type="text" id="marca" value={formData.marca} onChange={handleChange} required />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="placa">Placa</label>
-                            <input type="text" id="placa" value={formData.placa} onChange={handleChange} required />
-                        </div>
-                        
-                        <div className="form-group">
-                            <label htmlFor="tipoVeiculo">Tipo de Veículo</label>
-                            <select id="tipoVeiculo" value={formData.tipoVeiculo} onChange={handleChange}>
-                                {tiposVeiculo.map(tipo => (<option key={tipo} value={tipo}>{tipo}</option>))}
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="capacidade">Capacidade</label>
-                            <input type="number" id="capacidade" value={formData.capacidade} onChange={handleChange} required min="1" />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="status">Status</label>
-                            <select id="status" value={formData.status} onChange={handleChange}>
-                                {statusOpcoes.map(s => (<option key={s} value={s}>{s}</option>))}
-                            </select>
-                        </div>
-                        
-                        <div className="form-group">
-                            <label htmlFor="chassi">Chassi</label>
-                            <input type="text" id="chassi" value={formData.chassi} onChange={handleChange} />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="renavam">Renavam</label>
-                            <input type="text" id="renavam" value={formData.renavam} onChange={handleChange} />
-                        </div>
-                        
-                        <div className="form-group">
-                            <label htmlFor="dataAquisicao">Data da Aquisição</label>
-                            <input type="date" id="dataAquisicao" value={formData.dataAquisicao} onChange={handleChange} />
-                        </div>
-                        
-                        <div className="form-group">
-                            <label htmlFor="propriedade">Propriedade</label>
-                            <select id="propriedade" value={formData.propriedade} onChange={handleChange}>
-                                {propriedades.map(p => (<option key={p} value={p}>{p}</option>))}
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="categoria">Categoria</label>
-                            <select id="categoria" value={formData.categoria} onChange={handleChange}>
-                                {categorias.map(c => (<option key={c} value={c}>{c}</option>))}
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="kml">Km/l</label>
-                            <input type="number" id="kml" value={formData.kml} onChange={handleChange} step="0.01" />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="ultimaRevisao">Última Revisão</label>
-                            <input type="date" id="ultimaRevisao" value={formData.ultimaRevisao} onChange={handleChange} />
-                        </div>
-                        
-                        
-                    </div>
-                    <div className="modal-actions">
-                        {/* Desabilita os botões durante o envio 
-                        <button type="button" onClick={onClose} disabled={isSubmitting}>Cancelar</button>
-                        <button type="submit" disabled={isSubmitting}>Salvar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
-
-export default VeiculoModal;
-
-
-
-
-
-
-
-
-
-
-
-/*
-import React from 'react';
-import './VeiculoModal.css';
-
-const VeiculoModal = ({ onClose }) => {
-  return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h2>Novo Cadastro de Veículo</h2>
-        <form>
-          <div className="form-grid">
-            <div className="form-group">
-              <label htmlFor="modelo">Modelo</label>
-              <input type="text" id="modelo" />
-            </div>
-            <div className="form-group">
-              <label htmlFor="marca">Marca</label>
-              <input type="text" id="marca" />
-            </div>
-            <div className="form-group">
-              <label htmlFor="placa">Placa</label>
-              <input type="text" id="placa" />
-            </div>
-            <div className="form-group">
-              <label htmlFor="tipoVeiculo">Tipo de Veículo</label>
-              <select id="tipoVeiculo">
-                <option>Carro</option>
-                <option>Utilitário</option>
-                <option>Moto</option>
-                <option>Van</option>
-                <option>Micro-ônibus</option>
-                <option>Ônibus</option>
-                <option>Caminhão</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label htmlFor="capacidade">Capacidade</label>
-              <input type="number" id="capacidade" />
-            </div>
-            <div className="form-group">
-              <label htmlFor="status">Status</label>
-              <select id="status">
-                <option>Disponível</option>
-                <option>Em Uso</option>
-                <option>Em Manutenção</option>
-                <option>Inativo</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label htmlFor="chassi">Chassi</label>
-              <input type="text" id="chassi" />
-            </div>
-            <div className="form-group">
-              <label htmlFor="renavam">Renavam</label>
-              <input type="text" id="renavam" />
-            </div>
-            <div className="form-group">
-              <label htmlFor="dataAquisicao">Data da Aquisição</label>
-              <input type="date" id="dataAquisicao" />
-            </div>
-            <div className="form-group">
-              <label htmlFor="propriedade">Propriedade</label>
-              <select id="propriedade">
-                <option>Próprio</option>
-                <option>Terceirizado</option>
-                <option>Alugado</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label htmlFor="categoria">Categoria</label>
-              <select id="propriedade">
-                <option>Elétrico</option>
-                <option>Híbrido</option>
-                <option>Flex</option>
-                <option>Álcool</option>
-                <option>Gasolina</option>
-                <option>Diesel</option>
-                <option>GNV</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label htmlFor="kml">Km/l</label>
-              <input type="number" id="kml" />
-            </div>
-            <div className="form-group">
-              <label htmlFor="dataAquisicao">Última Revisão</label>
-              <input type="date" id="dataAquisicao" />
-            </div>
-          </div>
-          <div className="modal-actions">
-            <button type="button" onClick={onClose}>Cancelar</button>
-            <button type="submit">Salvar</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-export default VeiculoModal;
-
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

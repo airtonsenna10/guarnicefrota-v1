@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaSearch, FaEye, FaEdit, FaTrashAlt } from 'react-icons/fa'; // Importa ícones de ação
 import { fetchData, sendData } from '../../service/api'; // Assume que você tem fetchData/sendData
-//import ManutencaoModal from './ManutencaoModal'; // Iremos criar este modal
+import ManutencaoModal from './ManutencaoModal'; // Iremos criar este modal
 import NotificationToast from '../loadingoverlay/NotificationToast'; 
 
 import './Manutencoes.css'; 
@@ -11,16 +11,22 @@ import './Manutencoes.css';
 const Manutencoes = () => {
     
   
-    const API_ENDPOINT = '/api/manutencoes'; 
-    
+    const API_ENDPOINT = '/api/manutencoes';
 
-    const [manutencoes, setManutencoes] = useState([]); 
+     const [manutencoes, setManutencoes] = useState([]); 
     const [loading, setLoading] = useState(false); 
     const [error, setError] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar a visibilidade do modal
+    //const [manutencaoSelecionada, setManutencaoSelecionada] = useState(null); // Item para edição/visualização
+    const [notification, setNotification] = useState(null); // Estado para a notificação
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [manutencaoSelecionada, setManutencaoSelecionada] = useState(null); // Item para edição/visualização
-    const [notification, setNotification] = useState(null); 
+        //Estado para configurar o modal (veículo e modo de operação)
+        const [modalConfig, setModalConfig] = useState({ 
+            veiculo: null, 
+            mode: 'new'    // 'new', 'view', 'edit'
+        });
+
+   
     
     // FUNÇÃO DE CARREGAMENTO DAS MANUTENÇÕES
     const getManutencoes = async () => {
@@ -42,23 +48,24 @@ const Manutencoes = () => {
     }, []);
     
 
-    // Função que o MODAL chamará no sucesso ou erro (Igual ao Veiculos.js)
+    // Função que o MODAL chamará no sucesso ou erro (para exibir notificação)
     const handleManutencaoSaved = (message, type) => {
         setNotification({ message, type });
-        if (type === 'success') { getManutencoes(); } // Descomentar quando usar API
+        if (type === 'success') { getManutencoes(); } // Recarrega a lista após sucesso
     };
     
+    // Função para dispensar a notificação
     const dismissNotification = () => setNotification(null);
 
-    // FUNÇÕES PARA MODAL
+    // FUNÇÕES PARA ABRIR/FECHAR O MODAL
     const handleOpenModal = () => {
-        setManutencaoSelecionada(null); 
+        setModalConfig({ manutencao: null, mode: 'new' }); // Novo Cadastro
         setIsModalOpen(true);
     };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        setManutencaoSelecionada(null);
+        setModalConfig({ manutencao: null, mode: 'new' }); // Reset seleção
     };
 
     // ----------------------------------------------------------------------
@@ -66,13 +73,14 @@ const Manutencoes = () => {
     // ----------------------------------------------------------------------
 
     const handleVisualizar = (manutencao) => {
-        alert(`Visualizando Manutenção ID: ${manutencao.id} - Veículo: ${manutencao.veiculo}`);
-        // setManutencaoSelecionada(manutencao); setIsModalOpen(true); // Lógica para abrir modal
+         // Ação: Define a manutenção e o modo 'view'
+        setModalConfig({ manutencao: manutencao, mode: 'view' }); 
+        setIsModalOpen(true);
     };
 
     const handleEditar = (manutencao) => {
-        alert(`Preparando para Editar Manutenção ID: ${manutencao.id} - Veículo: ${manutencao.veiculo}`);
-        setManutencaoSelecionada(manutencao); 
+         // Ação: Define a manutenção e o modo 'edit'
+        setModalConfig({ manutenção: manutencao, mode: 'edit' }); 
         setIsModalOpen(true);
     };
 
@@ -177,7 +185,7 @@ const Manutencoes = () => {
                                 <td>{manutencao.tipo}</td>
                                 <td>{manutencao.descricao}</td>
                                 <td>{manutencao.dataInicio}</td>
-                                <td>{manutencao.dataFim}</td>
+                                <td>{manutencao.previsaoEntrega}</td>
                                 <td>{manutencao.horarioMarcado}</td>
                                 <td>{renderStatus(manutencao.status)}</td>
                                 
@@ -211,6 +219,16 @@ const Manutencoes = () => {
                 </table>
             </div>
             
+             {/* RENDERIZAÇÃO CONDICIONAL DO MODAL */}
+            {isModalOpen && (
+                <ManutencaoModal
+                    onClose={handleCloseModal}
+                    onManutencaoSaved={handleManutencaoSaved}
+                    // 🔑 PASSANDO AS NOVAS PROPS
+                    manutencaoToEdit={modalConfig.manutencao} 
+                    mode={modalConfig.mode}
+                />
+            )}
            
             
             {/* RENDERIZAÇÃO DO TOAST */}

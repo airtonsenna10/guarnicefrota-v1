@@ -5,7 +5,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+
+//import com.fasterxml.jackson.annotation.JsonBackReference;
+
+//import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Entity
 @Table(name = "tb06_veiculo")
@@ -17,9 +22,9 @@ public class Veiculo {
     @Column(name = "id_veiculo")
     private Long id;
 
-    //ADICIONE O RELACIONAMENTO ONE-TO-MANY AQUI:
-    @OneToMany(mappedBy = "veiculo", fetch = FetchType.LAZY)
-    @JsonIgnore // <--- Isso corrige o Erro 500 causado pelo loop de serialização!
+    
+    @OneToMany(mappedBy = "veiculo", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Manutencao> manutencoes;
 
 

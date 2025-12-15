@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+//import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name = "tb08_manutencao")
 public class Manutencao {
@@ -13,12 +17,13 @@ public class Manutencao {
     @Column(name = "id_manutencao", nullable = false)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne (fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_idveiculo", nullable = false)
+    @JsonManagedReference
     private Veiculo veiculo;
 
     @Column(name = "tipo_manutencao", length = 100)
-    private String tipo;
+    private String tipoManutencao;
 
     @Column(columnDefinition = "TEXT")
     private String descricao;
@@ -26,8 +31,8 @@ public class Manutencao {
    @Column(name = "data_inicio")
     private LocalDate dataInicio;
 
-    @Column(name = "data_fim")
-    private LocalDate dataFim;
+    @Column(name = "previsao_entrega")
+    private LocalDate previsaoEntrega;
 
     @Column(name = "horario_marcado", columnDefinition = "TIME")
     private LocalTime horarioMarcado; // Use LocalTime para mapear TIME
@@ -62,11 +67,11 @@ public class Manutencao {
     }
 
     public String getTipo() {
-        return tipo;
+        return tipoManutencao;
     }
 
     public void setTipo(String tipo) {
-        this.tipo = tipo;
+        this.tipoManutencao = tipo;
     }
 
     public String getDescricao() {
@@ -85,12 +90,12 @@ public class Manutencao {
         this.dataInicio = dataInicio;
     }
 
-    public LocalDate getDataFim() {
-        return dataFim;
+    public LocalDate getPrevisaoEntrega() {
+        return previsaoEntrega;
     }
 
-    public void setDataFim(LocalDate dataFim) {
-        this.dataFim = dataFim;
+    public void setPrevisaoEntrega(LocalDate previsaoEntrega) {
+        this.previsaoEntrega = previsaoEntrega;
     }
 
     public LocalTime getHorarioMarcado() {

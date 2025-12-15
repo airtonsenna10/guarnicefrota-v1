@@ -52,7 +52,7 @@ public class ManutencaoController {
             manutencao.setDescricao(manutencaoDetails.getDescricao());
             manutencao.setVeiculo(manutencaoDetails.getVeiculo());
             manutencao.setDataInicio(manutencaoDetails.getDataInicio());
-            manutencao.setDataFim(manutencaoDetails.getDataFim());
+            manutencao.setPrevisaoEntrega(manutencaoDetails.getPrevisaoEntrega());
             manutencao.setStatus(manutencaoDetails.getStatus());
             manutencao.setVeiculo(manutencaoDetails.getVeiculo());
             Manutencao updatedManutencao = manutencaoService.salvarManutencao(manutencao);

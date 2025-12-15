@@ -3,16 +3,20 @@ package br.com.seduc.guarnicefrota.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name = "tb12_alerta")
 public class Alerta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_alerta;
+    @Column(name = "id_alerta", nullable = false)
+    private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "fk_idveiculo")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "fk_idveiculo", nullable = true)
+    @JsonBackReference
     private Veiculo veiculo;
 
     @Column(nullable = false)
@@ -29,11 +33,11 @@ public class Alerta {
     // Getters and setters
 
     public Long getId() {
-        return id_alerta;
+        return id;
     }
 
     public void setId(Long id) {
-        this.id_alerta = id;
+        this.id = id;
     }
 
     public String getTipo() {

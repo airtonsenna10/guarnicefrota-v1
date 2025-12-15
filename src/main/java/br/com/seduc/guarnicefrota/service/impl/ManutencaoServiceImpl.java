@@ -27,7 +27,7 @@ public class ManutencaoServiceImpl implements ManutencaoService {
 
     @Override
     public List<Manutencao> buscarTodasManutencoes() {
-        return manutencaoRepository.findAll();
+        return manutencaoRepository.findAllWithVeiculo();
     }
 
     @Override
