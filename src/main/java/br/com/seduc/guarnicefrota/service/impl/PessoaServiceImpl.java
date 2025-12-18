@@ -23,8 +23,26 @@ public class PessoaServiceImpl implements PessoaService {
 
     @Override
     public Pessoa salvarPessoa(Pessoa pessoa) {
-        pessoa.setSenha(passwordEncoder.encode(pessoa.getSenha()));
-        return pessoaRepository.save(pessoa);
+       // 1. Verifica se a senha não é nula e nem está vazia
+    if (pessoa.getSenha() != null && !pessoa.getSenha().trim().isEmpty()) {
+        
+        // 2. Só criptografa se for uma senha "crua" (texto puro).
+        // Hashes do BCrypt geralmente começam com '$2a$' e têm 60 caracteres.
+        if (!pessoa.getSenha().startsWith("$2a$")) {
+            pessoa.setSenha(passwordEncoder.encode(pessoa.getSenha()));
+        }
+    } else {
+        // 3. Se a senha for nula/vazia (caso de edição sem troca de senha),
+        // precisamos garantir que o JPA não tente salvar um valor nulo.
+        // Se for uma atualização, buscamos a senha atual do banco.
+        if (pessoa.getId() != null) {
+            pessoaRepository.findById(pessoa.getId()).ifPresent(p -> {
+                pessoa.setSenha(p.getSenha());
+            });
+        }
+    }
+    
+    return pessoaRepository.save(pessoa);
     }
 
     @Override

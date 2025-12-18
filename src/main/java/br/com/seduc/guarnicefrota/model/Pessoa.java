@@ -30,11 +30,10 @@ public class Pessoa {
     private String senha;
 
     @Enumerated(EnumType.STRING)
-    private Papel papel;
+    private Perfil perfil;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status_conta")
-    @JsonProperty("status_conta")
     private StatusConta statusConta;
 
     @Column(name = "foto_url", length = 255)
@@ -50,16 +49,22 @@ public class Pessoa {
    
 
     // ENUMS DO BANCO
-    public enum Papel {
-        admin, usuario
+    public enum Perfil {
+        ADMIN, USUARIO
     }
 
     public enum StatusConta {
-        ativo, inativo, pendente
+        ATIVO, INATIVO
     }
 
     // Getters e Setters
+    public Long getId() {
+        return id;
+    }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getNome() {
         return nome;
@@ -101,12 +106,12 @@ public class Pessoa {
         this.celular = celular;
     }
 
-    public Papel getPapel() {
-        return papel;
+    public Perfil getPerfil() {
+        return perfil;
     }
 
-    public void setPapel(Papel papel) {
-        this.papel = papel;
+    public void setPerfil(Perfil perfil) {
+        this.perfil = perfil;
     }
 
     public StatusConta getStatusConta() {

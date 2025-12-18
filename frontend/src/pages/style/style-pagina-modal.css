@@ -1,0 +1,162 @@
+/* Função: Cria a camada de fundo semi-transparente que cobre toda a tela e impede a 
+interação com o conteúdo da página principal. É o mecanismo que centraliza o modal. */
+.modal-overlay {
+  position: fixed; /* Fixa o elemento em relação à janela do navegador */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0; /* Ocupa 100% da largura e altura da tela */
+  background-color: rgba(0, 0, 0, 0.5); /* Define a cor de fundo preta com 50% de transparência (efeito de "sombra") */
+  display: flex; /* Habilita o Flexbox */
+  justify-content: center; /* Centraliza o conteúdo (modal-content) horizontalmente */
+  align-items: center; /* Centraliza o conteúdo (modal-content) verticalmente */
+  z-index: 1000; /* Garante que o overlay fique acima de todos os outros elementos da página */
+}
+
+/* Função: Estiliza a caixa do modal (aparência e tamanho) que contém o formulário de cadastro de veículos. */
+/* VeiculoModal.css */
+
+.modal-content {
+    /* POSICIONAMENTO E ESTÉTICA */
+    position: relative; 
+    background-color: #fff; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    
+    /* TAMANHO */
+    width: 80%;
+    max-width: 800px;
+    max-height: 90vh; /* Limita a altura máxima visível */
+    
+    /* BORDAS E OVERFLOW (CHAVE PARA O ARREDONDAMENTO) */
+    border-radius: 12px; 
+    overflow: hidden; /* **MANTENHA** isso para garantir que o border-radius funcione */
+    
+    /* LAYOUT INTERNO (CHAVE PARA A ROLAGEM ISOLADA) */
+    display: flex; /* **NOVO**: Habilita Flexbox */
+    flex-direction: column; /* **NOVO**: Empilha verticalmente */
+    
+    /* Padding Geral: Use padding para o conteúdo interno que não rola */
+    padding: 20px; 
+  
+    
+  
+}
+
+.form-grid-principal {
+    flex-grow: 1; /* Permite que este elemento ocupe todo o espaço disponível restante */
+    overflow-y: auto; /* A rolagem é aplicada aqui */
+}
+
+
+/*Função: Estiliza o título do modal */
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem; /* Espaçamento abaixo do título */
+  color: #333;
+  
+}
+
+/* Função: Estiliza o formulário dentro do modal, organizando os campos em uma grade responsiva. */
+.form-grid {
+  display: grid; /* Habilita o CSS Grid para layout de colunas */
+  /* Cria colunas que cabem no espaço: mínimo de 250px, máximo 1 fração (1fr). 
+     Isso garante que, se houver espaço, ele cria até 3 colunas (800px / 250px ≈ 3) */
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
+  gap: 1rem; /* Espaçamento entre as células do grid (espaçamento entre os campos) */
+  overflow-y: auto;  /*A rolagem agora é aplicada aqui */
+}
+
+/* Função: Estiliza cada grupo de formulário (rótulo + campo de entrada) */
+.form-group {
+  display: flex;
+  flex-direction: column; /* Coloca a label e o input um em cima do outro */
+}
+
+.form-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.75rem; /* Aumenta o tamanho do campo para melhor usabilidade */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease-in-out; /* Transição suave para o efeito de foco */
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #007bff; /* Borda fica azul ao focar */
+  outline: none; /* Remove a borda padrão do navegador */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Adiciona um brilho azul ao focar */
+}
+
+/* (.modal-actions) Função: Estiliza e posiciona os botões "Cancelar" e "Salvar" no canto inferior direito, 
+separados do corpo do formulário por uma linha. */
+.modal-actions {
+  display: flex; /* Habilita o Flexbox */
+  justify-content: flex-end; /* Alinha os botões à direita (final do eixo principal) */
+  margin-top: 2rem;
+  border-top: 1px solid #eee; /* Linha separadora acima dos botões */
+  padding-top: 1rem;
+}
+
+/* Estiliza os botões dentro de .modal-actions */
+.modal-actions button {
+  margin-left: 0.75rem; /* Espaçamento entre os botões */
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+/* Estilo do botão Cancelar */
+.modal-actions button[type="button"] { /* Cancel button */
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.modal-actions button[type="button"]:hover {
+  background-color: #5a6268;
+}
+
+/* Estilo do botão Salvar */
+.modal-actions button[type="submit"] {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.modal-actions button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+/* Função: Estiliza o botão de fechar (X) no canto superior direito do modal */
+.modal-close-btn {
+    position: absolute; /* ESSENCIAL para posicionamento no canto */
+    top: 15px;          
+    right: 15px;
+    font-size: 25px;     
+    
+    /* Remove a aparência padrão do botão */
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999; /* Cor do ícone */
+    
+    /* Garante que o clique seja fácil */
+    padding: 5px; 
+    transition: color 0.2s; 
+    z-index: 1000; 
+
+   
+}
+
+.modal-close-btn:hover {
+    color: #333; /* Efeito de hover */
+}
+

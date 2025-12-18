@@ -6,7 +6,7 @@ import java.time.LocalTime;
 
 //import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+//import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "tb08_manutencao")
@@ -19,7 +19,7 @@ public class Manutencao {
 
     @ManyToOne (fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_idveiculo", nullable = false)
-    @JsonManagedReference
+    //@JsonManagedReference
     private Veiculo veiculo;
 
     @Column(name = "tipo_manutencao", length = 100)
@@ -66,12 +66,12 @@ public class Manutencao {
         this.veiculo = veiculo;
     }
 
-    public String getTipo() {
+    public String getTipoManutencao() {
         return tipoManutencao;
     }
 
-    public void setTipo(String tipo) {
-        this.tipoManutencao = tipo;
+    public void setTipoManutencao(String tipoManutencao) {
+        this.tipoManutencao = tipoManutencao;
     }
 
     public String getDescricao() {

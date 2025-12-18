@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import './VeiculoModal.css';
+//import './VeiculoModal.css';
+import '../style/style-pagina-modal.css'; // Importa o CSS Modal
 import LoadingOverlay from '../loadingoverlay/LoadingOverlay'; 
 import { sendData } from '../../service/api';
 import { FaTimes } from 'react-icons/fa';
@@ -67,7 +68,7 @@ const VeiculoModal = ({ onClose, onVeiculoSaved, veiculoToEdit, mode }) => {
     // 2. handleChange (Desabilitar no modo Visualização)
     // ----------------------------------------------------------------------
     const handleChange = (e) => {
-        // 🔑 NOVIDADE: Ignora se for Visualização
+        // Ignora se for Visualização
         if (isViewMode) return; 
         
         const { id, value } = e.target;
@@ -226,7 +227,7 @@ const VeiculoModal = ({ onClose, onVeiculoSaved, veiculoToEdit, mode }) => {
                 {/*<button className="modal-close-btn" onClick={onClose}>&times;</button>*/}
                 <button className="modal-close-btn" onClick={onClose} title="Fechar" ><FaTimes /> </button>
                 
-                {/* 🔑 Renderiza o Modo Visualização OU o Formulário */}
+                {/* Renderiza o Modo Visualização OU o Formulário */}
                 {isViewMode ? renderViewMode() : (
                     <form className='form-grid-principal' onSubmit={handleSubmit}>
                         <div className="form-grid">
@@ -310,7 +311,7 @@ const VeiculoModal = ({ onClose, onVeiculoSaved, veiculoToEdit, mode }) => {
                     </form>
                 )}
                 
-                {/* 🔑 Botão Fechar/Cancelar no modo Visualização */}
+                {/* Botão Fechar/Cancelar no modo Visualização */}
                 {isViewMode && (
                     <div className="modal-actions">
                         <button type="button" onClick={onClose}>Fechar</button>

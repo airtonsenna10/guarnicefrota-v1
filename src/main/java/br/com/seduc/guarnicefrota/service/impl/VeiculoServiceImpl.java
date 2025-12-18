@@ -37,4 +37,10 @@ public class VeiculoServiceImpl implements VeiculoService {
     public void deletarVeiculo(Long id) {
         veiculoRepository.deleteById(id);
     }
+
+    // Implementação do método buscarVeiculoPorPlaca
+    @Override
+    public Optional<Veiculo> buscarVeiculoPorPlaca(String placa) {
+        return veiculoRepository.findByPlaca(placa); 
+    }  
 }

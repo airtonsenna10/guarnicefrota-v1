@@ -21,7 +21,7 @@ public class PessoaController {
         this.pessoaService = pessoaService;
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<Pessoa> createPessoa(@RequestBody Pessoa pessoa) {
         Pessoa savedPessoa = pessoaService.salvarPessoa(pessoa);
         return new ResponseEntity<>(savedPessoa, HttpStatus.CREATED);
@@ -44,9 +44,23 @@ public class PessoaController {
         Optional<Pessoa> pessoaOptional = pessoaService.buscarPessoaPorId(id);
         if (pessoaOptional.isPresent()) {
             Pessoa pessoa = pessoaOptional.get();
+            pessoa.setNome(pessoaDetails.getNome());
+            pessoa.setCpf(pessoaDetails.getCpf());
             pessoa.setEmail(pessoaDetails.getEmail());
-            pessoa.setSenha(pessoaDetails.getSenha()); // Consider hashing password in service
-            pessoa.setPapel(pessoaDetails.getPapel());
+            pessoa.setCelular(pessoaDetails.getCelular());
+            pessoa.setPerfil(pessoaDetails.getPerfil());
+            pessoa.setStatusConta(pessoaDetails.getStatusConta());
+
+                // LÓGICA DA SENHA: Só altera se o usuário enviou uma nova
+            if (pessoaDetails.getSenha() != null && !pessoaDetails.getSenha().trim().isEmpty()) {
+                // Se veio senha nova, para o service criptografar
+                pessoa.setSenha(pessoaDetails.getSenha());
+            } else {
+                // Se não veio senha, garantimos que o campo senha NÃO seja alterado (mantém a atual)
+                // Não fazemos nada, pois o objeto 'pessoa' já tem a senha do banco
+            }
+
+
             Pessoa updatedPessoa = pessoaService.salvarPessoa(pessoa);
             return ResponseEntity.ok(updatedPessoa);
         } else {

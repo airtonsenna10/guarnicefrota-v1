@@ -9,7 +9,11 @@ public interface AlertaService {
 
     Alerta salvarAlerta(Alerta alerta);
 
+    //Método para buscar a lista de todos os alertas (sem relação Veículo)
     List<Alerta> buscarTodosAlertas();
+
+    //Método para buscar a lista de alertas populando a relação Veículo
+    List<Alerta> buscarTodosAlertasComVeiculo();
 
     Optional<Alerta> buscarAlertaPorId(Long id);
 

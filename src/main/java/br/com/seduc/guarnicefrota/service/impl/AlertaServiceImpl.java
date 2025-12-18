@@ -26,7 +26,14 @@ public class AlertaServiceImpl implements AlertaService {
 
     @Override
     public List<Alerta> buscarTodosAlertas() {
+        // Retorna a lista simples, sem JOIN FETCH (fetch = FetchType.EAGER)
         return alertaRepository.findAll();
+    }
+
+    @Override
+    public List<Alerta> buscarTodosAlertasComVeiculo() {
+        // Retorna a lista com JOIN FETCH para popular a relação Veículo (fetch = FetchType.LAZY)
+        return alertaRepository.findAllWithVeiculo();
     }
 
     @Override
@@ -38,6 +45,8 @@ public class AlertaServiceImpl implements AlertaService {
     public void deletarAlerta(Long id) {
         alertaRepository.deleteById(id);
     }
+
+    
 
     @Override
     public List<Alerta> buscarAlertasPorVeiculoAssociado(Veiculo veiculo) {

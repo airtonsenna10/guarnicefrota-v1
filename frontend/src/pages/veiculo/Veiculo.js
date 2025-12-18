@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { FaSearch, FaEye, FaEdit, FaTrashAlt } from 'react-icons/fa'; // Importa os novos ícones
+import { FaSearch, FaEye, FaPlus ,FaEdit, FaTrashAlt } from 'react-icons/fa'; // Importa os novos ícones
 import { fetchData, sendData } from '../../service/api'; // Adiciona sendData para exclusão
 import VeiculoModal from './VeiculoModal'; 
 import NotificationToast from '../loadingoverlay/NotificationToast'; 
-import './Veiculos.css';
+//import './Veiculos.css';
+import '../style/style-pagina-principal.css'; // Importa o CSS principal
 
-const Veiculos = () => {
+const Veiculo = () => {
 
     const API_ENDPOINT = '/api/veiculos'; 
 
@@ -65,7 +66,7 @@ const Veiculos = () => {
     };
 
     // ----------------------------------------------------------------------
-    // NOVAS FUNÇÕES DE AÇÃO NA TABELA 
+    // FUNÇÕES DE AÇÃO NA TABELA (CRUD)
     // ----------------------------------------------------------------------
 
     const handleVisualizar = (veiculo) => {
@@ -124,11 +125,14 @@ const Veiculos = () => {
     }
 
     return (
-        <div className="solicitacoes-container">
+        <div className="main-list-container">
             {/* ... (Cabeçalho e Área de Pesquisa) ... */}
             <div className="header-container">
                 <h1 className="page-title">Cadastro de Veículos</h1>
-                <button className="btn-nova-solicitacao" onClick={handleOpenModal}>Novo Cadastro</button>
+                <button className="btn-novo-cadastro" onClick={handleOpenModal}>
+                    <FaPlus /> Novo Cadastro
+                </button>
+                  
             </div>
             {/* ... (Área de Pesquisa) ... */}
             <div className="area-pesquisa-container">
@@ -156,7 +160,7 @@ const Veiculos = () => {
 
             {/* Tabela de Veículos */}
             <div className="tabela-wrapper">
-                <table className="tabela-veiculos">
+                <table className="tabela-listagem">
                     <thead>
                         <tr>
                             <th>Modelo</th>
@@ -241,7 +245,7 @@ const Veiculos = () => {
     );
 };
 
-export default Veiculos;
+export default Veiculo;
 
 
 

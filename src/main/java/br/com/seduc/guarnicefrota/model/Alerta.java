@@ -3,7 +3,7 @@ package br.com.seduc.guarnicefrota.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+//import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "tb12_alerta")
@@ -14,9 +14,11 @@ public class Alerta {
     @Column(name = "id_alerta", nullable = false)
     private Long id;
 
+   
+    //@ManyToOne(fetch = FetchType.EAGER, optional = true)
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "fk_idveiculo", nullable = true)
-    @JsonBackReference
+   // @JsonBackReference
     private Veiculo veiculo;
 
     @Column(nullable = false)

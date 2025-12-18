@@ -1,4 +1,263 @@
 
+import React, { useState, useEffect } from 'react';
+import { FaSearch, FaEye, FaPlus, FaEdit, FaTrashAlt } from 'react-icons/fa'; // Importa ícones de ação
+import { fetchData, sendData } from '../../service/api'; // Necessário para CRUD
+import ManutencaoModal from './ManutencaoModal'; 
+import NotificationToast from '../loadingoverlay/NotificationToast'; 
+
+//import './Manutencao.css'; 
+import '../style/style-pagina-principal.css'; // Estilos compartilhados
+
+const Manutencao = () => {
+    
+    const API_ENDPOINT = '/api/manutencoes';
+
+    const [manutencoes, setManutencoes] = useState([]); 
+    const [loading, setLoading] = useState(false); 
+    const [error, setError] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false); 
+    const [notification, setNotification] = useState(null); 
+
+    // Estado para configurar o modal: usando 'manutencao' como chave
+    const [modalConfig, setModalConfig] = useState({ 
+        manutencao: null, // Armazenará o objeto de Manutenção
+        mode: 'new'      // 'new', 'view', 'edit'
+    });
+
+    
+    // FUNÇÃO DE CARREGAMENTO DAS MANUTENÇÕES
+    const getManutencoes = async () => {
+        try {
+            setLoading(true);
+            const data = await fetchData(API_ENDPOINT);
+            setManutencoes(data);
+            setError(null);
+        } catch (err) {
+            console.error("Erro ao buscar manutenções:", err);
+            setError("Erro ao carregar dados de manutenção. Verifique o servidor.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        getManutencoes(); // Chama a função de busca
+    }, []);
+    
+
+    // Função que o MODAL chamará no sucesso ou erro (para exibir notificação)
+    const handleManutencaoSaved = (message, type) => {
+        setNotification({ message, type });
+        if (type === 'success') { getManutencoes(); } // Recarrega a lista após sucesso
+    };
+    
+    // Função para dispensar a notificação
+    const dismissNotification = () => setNotification(null);
+
+    // FUNÇÕES PARA ABRIR/FECHAR O MODAL
+    const handleOpenModal = () => {
+        setModalConfig({ manutencao: null, mode: 'new' }); // Novo Cadastro
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setModalConfig({ manutencao: null, mode: 'new' }); // Reset seleção
+    };
+
+    // ----------------------------------------------------------------------
+    // FUNÇÕES DE AÇÃO NA TABELA (Visualizar, Editar, Excluir)
+    // ----------------------------------------------------------------------
+
+    const handleVisualizar = (manutencao) => {
+        // Define a manutenção e o modo 'view'
+        setModalConfig({ manutencao: manutencao, mode: 'view' }); 
+        setIsModalOpen(true);
+    };
+
+    const handleEditar = (manutencao) => {
+        // Define a manutenção e o modo 'edit' (CORRIGIDO: 'manutencao' sem cedilha)
+        setModalConfig({ manutencao: manutencao, mode: 'edit' }); 
+        setIsModalOpen(true);
+    };
+
+    const handleExcluir = async (manutencao) => {
+        // Acessa a placa para exibição
+        const placa = manutencao.veiculo?.placa || 'N/A';
+        
+        if (window.confirm(`Tem certeza que deseja excluir a Manutenção ID: ${manutencao.id} do veículo ${placa}?`)) {
+            try {
+                // IMPLEMENTAÇÃO DO DELETE USANDO O PADRÃO sendData
+                await sendData(`${API_ENDPOINT}/${manutencao.id}`, 'DELETE'); 
+                handleManutencaoSaved("Manutenção excluída com sucesso!", 'success');
+                // O handleManutencaoSaved já chama o getManutencoes()
+            } catch (error) {
+                console.error("Erro ao excluir:", error);
+                handleManutencaoSaved("Erro ao excluir. Tente novamente.", 'error');
+            }
+        }
+    };
+
+    // Função para renderizar a etiqueta de status (mantida)
+    const renderStatus = (status) => {
+        if (!status) return null;
+        
+        // ... (Lógica de normalização de status)
+        const normalizado = status
+            .toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
+            .replace(/[\s_]/g, "-"); 
+
+        let statusClass = '';
+        switch (normalizado) {
+            case 'nao-iniciado': statusClass = 'status-nao-iniciado'; break; // Ajuste o CSS correspondente
+            case 'em-andamento': statusClass = 'status-em-andamento'; break; 
+            case 'concluida': statusClass = 'status-concluida'; break; 
+            case 'cancelada': statusClass = 'status-cancelada'; break; 
+            default: statusClass = 'status-desconhecido';
+        }
+        return <span className={`status-pill ${statusClass}`}>{status}</span>;
+    };
+    
+    // ----------------------------------------------------------------------
+    // Renderização
+    // ----------------------------------------------------------------------
+
+    if (loading) {
+        return <div className="manutencoes-container">Carregando...</div>;
+    }
+
+    if (error) {
+        return <div className="manutencoes-container">Erro: {error}</div>;
+    }
+
+    return (
+        <div className="main-list-container">
+            {/* Cabeçalho com Título e Botão */}
+            <div className="header-container">
+                <h1 className="page-title">Cadastro de Manutenção</h1>
+                <button className="btn-novo-cadastro" onClick={handleOpenModal}>
+                    <FaPlus /> Novo Cadastro
+                </button>
+            </div>
+
+            {/* Área de Pesquisa - Mantida */}
+            <div className="area-pesquisa-container">
+                <h3 className="area-pesquisa-titulo">
+                    <FaSearch /> Área de Pesquisa
+                </h3>
+                {/* ... Filtros de Placa, Data e Status ... */}
+                <div className="filtros-container">
+                    <div className="filtro-item">
+                        <label htmlFor="placa-veiculo">Placa do Veículo</label>
+                        <input type="text" id="placa-veiculo" className="filtro-input" />
+                    </div>
+                    <div className="filtro-item">
+                        <label htmlFor="data-solicitacao">Data</label>
+                        <input type="date" id="data-solicitacao" className="filtro-input" />
+                    </div>
+                    <div className="filtro-item">
+                        <label htmlFor="status-select">Status</label>
+                        <select id="status-select" className="filtro-select">
+                            <option>Todos</option>
+                            <option>Não iniciado</option>
+                            <option>Em andamento</option>
+                            <option>Concluida</option>
+                            <option>Cancelada</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            {/* Tabela de Manutenções */}
+            <div className="tabela-wrapper">
+                <table className="tabela-listagem">
+                    <thead>
+                        <tr>
+                            <th>Veiculo</th>
+                            <th>Tipo de manutenção</th>
+                            <th>Descrição</th>
+                            <th>Data de Inicio</th>
+                            <th>Previsão de Entrega</th>
+                            <th>Horario Marcado</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {manutencoes.map((manutencao) => (
+                            <tr key={manutencao.id}>
+                                {/* Renderização: usa Optional Chaining (?.) para veículos aninhados */}
+                                <td>{`${manutencao.veiculo?.modelo || 'N/A'} - ${manutencao.veiculo?.placa || 'N/A'}`}</td>
+                                <td>{manutencao.tipoManutencao}</td>
+                                <td>{manutencao.descricao}</td>
+                                <td>{manutencao.dataInicio}</td>
+                                <td>{manutencao.previsaoEntrega}</td>
+                                <td>{manutencao.horarioMarcado}</td>
+                                <td>{renderStatus(manutencao.status)}</td>
+                                
+                                {/* CÉLULA DE AÇÕES */}
+                                <td className="acoes-cell">
+                                    <button 
+                                        className="action-button view-button" 
+                                        title="Visualizar" 
+                                        onClick={() => handleVisualizar(manutencao)}
+                                    >
+                                        <FaEye />
+                                    </button>
+                                    <button 
+                                        className="action-button edit-button" 
+                                        title="Editar" 
+                                        onClick={() => handleEditar(manutencao)}
+                                    >
+                                        <FaEdit />
+                                    </button>
+                                    <button 
+                                        className="action-button delete-button" 
+                                        title="Excluir" 
+                                        onClick={() => handleExcluir(manutencao)}
+                                    >
+                                        <FaTrashAlt />
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            
+            {/* RENDERIZAÇÃO CONDICIONAL DO MODAL */}
+            {isModalOpen && (
+                <ManutencaoModal
+                    onClose={handleCloseModal}
+                    onManutencaoSaved={handleManutencaoSaved}
+                    // PASSANDO AS NOVAS PROPS PADRONIZADAS
+                    manutencaoToEdit={modalConfig.manutencao} 
+                    mode={modalConfig.mode}
+                />
+            )}
+            
+            
+            {/* RENDERIZAÇÃO DO TOAST */}
+            {notification && (
+                <NotificationToast
+                    message={notification.message}
+                    type={notification.type}
+                    onDismiss={dismissNotification}
+                    duration={3000} 
+                />
+            )}
+        </div>
+    );
+};
+
+export default Manutencao;
+
+
+
+
+
+/* Página de Listagem de Manutenções anterior
 
 import React, { useState, useEffect } from 'react';
 import { FaSearch, FaEye, FaEdit, FaTrashAlt } from 'react-icons/fa'; // Importa ícones de ação
@@ -87,7 +346,7 @@ const Manutencoes = () => {
     const handleExcluir = async (manutencao) => {
         if (window.confirm(`Tem certeza que deseja excluir a Manutenção ID: ${manutencao.id} do veículo ${manutencao.veiculo}?`)) {
             try {
-                // ⚠️ Se o ID for diferente de 'id' no objeto, ajuste (Ex: manutencao.id_manutencao)
+                // Se o ID for diferente de 'id' no objeto, ajuste (Ex: manutencao.id_manutencao)
                 // await sendData(`${API_ENDPOINT}/${manutencao.id}`, 'DELETE'); 
                 handleManutencaoSaved("Manutenção excluída com sucesso!", 'success');
                 // Após exclusão, você precisará recarregar a lista (chamar getManutencoes())
@@ -129,18 +388,18 @@ const Manutencoes = () => {
 
     return (
         <div className="manutencoes-container">
-            {/* Cabeçalho com Título e Botão */}
+            {/* Cabeçalho com Título e Botão 
             <div className="header-container">
                 <h1 className="page-title">Cadastro de Manutenção</h1>
                 <button className="btn-nova-manutencao" onClick={handleOpenModal}>Novo Cadastro</button>
             </div>
 
-            {/* Área de Pesquisa - Mantida */}
+            {/* Área de Pesquisa - Mantida *
             <div className="area-pesquisa-container">
                 <h3 className="area-pesquisa-titulo">
                     <FaSearch /> Área de Pesquisa
                 </h3>
-                {/* ... Filtros de Placa, Data e Status ... */}
+                {/* ... Filtros de Placa, Data e Status ... 
                  <div className="filtros-container">
                     <div className="filtro-item">
                         <label htmlFor="placa-veiculo">Placa do Veículo</label>
@@ -163,7 +422,7 @@ const Manutencoes = () => {
                 </div>
             </div>
 
-            {/* Tabela de Manutenções */}
+            {/* Tabela de Manutenções *
             <div className="tabela-wrapper">
                 <table className="tabela-manutencao">
                     <thead>
@@ -182,14 +441,14 @@ const Manutencoes = () => {
                         {manutencoes.map((manutencao) => (
                             <tr key={manutencao.id}>
                                 <td>{`${manutencao.veiculo?.modelo || 'N/A'} - ${manutencao.veiculo?.placa || 'N/A'}`}</td>
-                                <td>{manutencao.tipo}</td>
+                                <td>{manutencao.tipoManutencao}</td>
                                 <td>{manutencao.descricao}</td>
                                 <td>{manutencao.dataInicio}</td>
                                 <td>{manutencao.previsaoEntrega}</td>
                                 <td>{manutencao.horarioMarcado}</td>
                                 <td>{renderStatus(manutencao.status)}</td>
                                 
-                                {/* CÉLULA DE AÇÕES ADAPTADA */}
+                                {/* CÉLULA DE AÇÕES ADAPTADA 
                                 <td className="acoes-cell">
                                     <button 
                                         className="action-button view-button" 
@@ -219,19 +478,19 @@ const Manutencoes = () => {
                 </table>
             </div>
             
-             {/* RENDERIZAÇÃO CONDICIONAL DO MODAL */}
+             {/* RENDERIZAÇÃO CONDICIONAL DO MODAL 
             {isModalOpen && (
                 <ManutencaoModal
                     onClose={handleCloseModal}
                     onManutencaoSaved={handleManutencaoSaved}
-                    // 🔑 PASSANDO AS NOVAS PROPS
+                    // PASSANDO AS NOVAS PROPS
                     manutencaoToEdit={modalConfig.manutencao} 
                     mode={modalConfig.mode}
                 />
             )}
            
             
-            {/* RENDERIZAÇÃO DO TOAST */}
+            {/* RENDERIZAÇÃO DO TOAST 
             {notification && (
                 <NotificationToast
                     message={notification.message}
@@ -246,7 +505,7 @@ const Manutencoes = () => {
 
 export default Manutencoes;
 
-
+*/
 
 
 

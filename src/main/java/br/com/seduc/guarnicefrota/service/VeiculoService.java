@@ -14,4 +14,7 @@ public interface VeiculoService {
 
     void deletarVeiculo(Long id);
 
+    // No VeiculoService.java
+    public Optional<Veiculo> buscarVeiculoPorPlaca(String placa);
+
 }

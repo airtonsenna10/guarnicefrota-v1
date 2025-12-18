@@ -33,7 +33,8 @@ public class AlertaController {
 
     @GetMapping
     public List<Alerta> getAllAlertas() {
-        return alertaService.buscarTodosAlertas();
+        //return alertaService.buscarTodosAlertas();
+        return alertaService.buscarTodosAlertasComVeiculo();
     }
 
     @GetMapping("/{id}")
