@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/organogramas")
+@RequestMapping("/api/organograma")
+@CrossOrigin(origins = "*") // Permite que o frontend acesse a API
 public class OrganogramaController {
 
     private final OrganogramaService organogramaService;

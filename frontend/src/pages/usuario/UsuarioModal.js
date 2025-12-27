@@ -3,6 +3,212 @@ import LoadingOverlay from '../loadingoverlay/LoadingOverlay';
 import { sendData } from '../../service/api';
 import { FaTimes } from 'react-icons/fa';
 
+// --- Funções de Máscara ---
+const formatCPF = (value) => {
+    return value
+        .replace(/\D/g, '')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})/, '$1-$2')
+        .replace(/(-\d{2})\d+?$/, '$1');
+};
+
+const formatPhone = (value) => {
+    return value
+        .replace(/\D/g, '') 
+        .replace(/^(\d{2})(\d)/g, '($1) $2')
+        .replace(/(\d{5})(\d)/, '$1-$2')
+        .replace(/(-\d{4})\d+?$/, '$1');
+};
+
+const UsuarioModal = ({ onClose, onUsuarioSaved, usuarioToEdit, mode }) => {
+    const isViewMode = mode === 'view';
+    const isEditMode = mode === 'edit';
+    const isNewMode = mode === 'new';
+    
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [confirmarSenha, setConfirmarSenha] = useState('');
+    const [erroSenha, setErroSenha] = useState('');
+
+    const perfisOpcoes = ["ADMIN", "USUARIO"];
+    const statusOpcoes = ["ATIVO", "INATIVO"];
+
+    const initialFormData = useMemo(() => ({
+        nome: '',
+        email: '',
+        cpf: '',
+        celular: '',
+        perfil: 'USUARIO',
+        statusConta: 'ATIVO',
+        senha: '',
+    }), []);
+
+    const [formData, setFormData] = useState(initialFormData);
+
+    useEffect(() => {
+        if (usuarioToEdit && (isEditMode || isViewMode)) {
+            setFormData({
+                ...usuarioToEdit,
+                cpf: formatCPF(usuarioToEdit.cpf || ''),
+                celular: formatPhone(usuarioToEdit.celular || ''),
+                statusConta: usuarioToEdit.statusConta || usuarioToEdit.status_conta || 'ATIVO',
+                senha: '', 
+            });
+            setConfirmarSenha('');
+        } else if (isNewMode) {
+            setFormData(initialFormData);
+        }
+    }, [usuarioToEdit, mode, isEditMode, isViewMode, isNewMode, initialFormData]);
+
+    const handleChange = (e) => {
+        if (isViewMode) return; 
+        const { id, value } = e.target;
+        let newValue = value;
+
+        if (id === 'nome') newValue = newValue.toUpperCase();
+        if (id === 'cpf') newValue = formatCPF(value);
+        if (id === 'celular') newValue = formatPhone(value);
+
+        setFormData(prev => ({ ...prev, [id]: newValue }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (isViewMode) return; 
+
+        if (formData.cpf.length < 14) {
+            setErroSenha("Por favor, preencha o CPF completo.");
+            return;
+        }
+
+        if (isNewMode && formData.senha.length < 6) {
+            setErroSenha("A senha deve ter no mínimo 6 caracteres.");
+            return;
+        }
+
+        if (formData.senha !== confirmarSenha && (isNewMode || formData.senha !== '')) {
+            setErroSenha("As senhas não coincidem!");
+            return;
+        }
+
+        setIsSubmitting(true);
+        setErroSenha('');
+
+        const dataToSend = { 
+            ...formData,
+            cpf: formData.cpf.replace(/\D/g, ''),
+            celular: formData.celular.replace(/\D/g, ''),
+            status_conta: formData.statusConta
+        };
+        
+        if (isEditMode && !formData.senha) delete dataToSend.senha;
+        
+        const method = isEditMode ? 'PUT' : 'POST';
+        const url = isEditMode ? `/api/pessoas/${usuarioToEdit.id}` : '/api/pessoas';
+
+        try {
+            await sendData(url, method, dataToSend);
+            setIsSubmitting(false);
+            onUsuarioSaved(isEditMode ? "Atualizado com sucesso!" : "Cadastrado com sucesso!", 'success');
+            onClose();
+        } catch (error) {
+            setIsSubmitting(false);
+            onUsuarioSaved("Erro ao processar. CPF ou E-mail podem já existir.", 'error');
+        } 
+    };
+
+    return (
+        <div className="modal-overlay">
+            {isSubmitting && <LoadingOverlay message="Processando..." />}
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h2>{isViewMode ? 'Dados do Usuário' : isEditMode ? 'Editar Usuário' : 'Novo Usuário'}</h2>
+                    <button className="modal-close-btn" onClick={onClose}><FaTimes /></button>
+                </div>
+                
+                <form className="modal-form" onSubmit={handleSubmit}>
+                    <div className="form-grid">
+                        <div className="form-group full-width">
+                            <label htmlFor="nome">Nome Completo</label>
+                            <input type="text" id="nome" value={formData.nome} onChange={handleChange} required disabled={isViewMode} />
+                        </div>
+                        
+                        <div className="form-group">
+                            <label htmlFor="email">E-mail</label>
+                            <input type="email" id="email" value={formData.email} onChange={handleChange} required disabled={isViewMode} />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="cpf">CPF</label>
+                            <input type="text" id="cpf" value={formData.cpf} onChange={handleChange} required disabled={isViewMode} placeholder="000.000.000-00" />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="celular">Celular</label>
+                            <input type="text" id="celular" value={formData.celular} onChange={handleChange} required disabled={isViewMode} placeholder="(00) 00000-0000" />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="perfil">Perfil</label>
+                            <select id="perfil" value={formData.perfil} onChange={handleChange} disabled={isViewMode}>
+                                {perfisOpcoes.map(p => <option key={p} value={p}>{p}</option>)}
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="statusConta">Status da Conta</label>
+                            <select id="statusConta" value={formData.statusConta} onChange={handleChange} disabled={isViewMode}>
+                                {statusOpcoes.map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                        </div>
+
+                        {!isViewMode && (
+                            <>
+                                <div className="form-divider"><h3>Segurança</h3></div>
+                                <div className="form-group">
+                                    <label htmlFor="senha">Nova Senha {isNewMode && '*'}</label>
+                                    <input type="password" id="senha" value={formData.senha} onChange={handleChange} required={isNewMode} />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="confirmarSenha">Confirmar Senha</label>
+                                    <input type="password" id="confirmarSenha" value={confirmarSenha} onChange={(e) => setConfirmarSenha(e.target.value)} required={isNewMode || formData.senha !== ''} />
+                                </div>
+                            </>
+                        )}
+
+                        {erroSenha && <p className="error-message full-width" style={{color: '#e53e3e', fontSize: '0.85rem'}}>{erroSenha}</p>}
+                    </div>
+
+                    <div className="modal-footer">
+                        <button type="button" className="btn-cancel" onClick={onClose}>
+                            {isViewMode ? 'Fechar' : 'Cancelar'}
+                        </button>
+                        {!isViewMode && (
+                            <button type="submit" className="btn-save">
+                                {isEditMode ? 'Salvar Edição' : 'Cadastrar Usuário'}
+                            </button>
+                        )}
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+export default UsuarioModal;
+
+
+
+
+
+
+/*
+
+import React, { useState, useEffect, useMemo } from 'react';
+import LoadingOverlay from '../loadingoverlay/LoadingOverlay'; 
+import { sendData } from '../../service/api';
+import { FaTimes } from 'react-icons/fa';
+
 // --- Funções de Máscara (Fora do componente para performance) ---
 const formatCPF = (value) => {
     return value
@@ -23,8 +229,7 @@ const formatPhone = (value) => {
 
 const UsuarioModal = ({ onClose, onUsuarioSaved, usuarioToEdit, mode }) => {
 
-    console.log("Dados recebidos para edição:", usuarioToEdit);
-    
+    // --- VARIÁVEIS DE ESTADO E LÓGICA DE MODO ---
     const isViewMode = mode === 'view';
     const isEditMode = mode === 'edit';
     const isNewMode = mode === 'new';
@@ -106,7 +311,7 @@ const UsuarioModal = ({ onClose, onUsuarioSaved, usuarioToEdit, mode }) => {
             return;
         }
 
-        setIsSubmitting(true);
+        setIsSubmitting(true); // Inicia o estado de submissão
         setErroSenha('');
 
         // Prepara os dados para envio
@@ -127,7 +332,7 @@ const UsuarioModal = ({ onClose, onUsuarioSaved, usuarioToEdit, mode }) => {
 
         try {
             await sendData(url, method, dataToSend);
-            setIsSubmitting(false);
+            setIsSubmitting(false); // Resetando o estado de submissão
             onUsuarioSaved(isEditMode ? "Atualizado com sucesso!" : "Cadastrado com sucesso!", 'success');
             onClose();
         } catch (error) {
@@ -136,6 +341,7 @@ const UsuarioModal = ({ onClose, onUsuarioSaved, usuarioToEdit, mode }) => {
         } 
     };
 
+    // --- Renderização do Modo Visualização ---
     const renderViewMode = () => (
         <div className="view-mode-details form-grid">
             <div className="form-group"><label>Nome</label><p>{formData.nome}</p></div>
@@ -154,6 +360,7 @@ const UsuarioModal = ({ onClose, onUsuarioSaved, usuarioToEdit, mode }) => {
                 <div className="modal-header">
                     <h2>{isViewMode ? 'Dados Cadastrais' : isEditMode ? 'Editar Usuário' : 'Novo Usuário'}</h2>
                     <button className="modal-close-btn" onClick={onClose}><FaTimes /></button>
+                
                 </div>
                 
                 {isViewMode ? renderViewMode() : (
@@ -222,7 +429,7 @@ const UsuarioModal = ({ onClose, onUsuarioSaved, usuarioToEdit, mode }) => {
 export default UsuarioModal;
 
 
-
+*/
 
 
 

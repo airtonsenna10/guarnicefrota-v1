@@ -4,8 +4,7 @@ import { FaSearch, FaEye, FaPlus ,FaEdit, FaTrashAlt } from 'react-icons/fa'; //
 import { fetchData, sendData } from '../../service/api'; // Adiciona sendData para exclusão
 import VeiculoModal from './VeiculoModal'; 
 import NotificationToast from '../loadingoverlay/NotificationToast'; 
-//import './Veiculos.css';
-import '../style/style-pagina-principal.css'; // Importa o CSS principal
+//import '../../style/GlobalListStyles.css'; // Importa o CSS comum para listas
 
 const Veiculo = () => {
 
@@ -235,6 +234,7 @@ const Veiculo = () => {
             {/* RENDERIZAÇÃO DO TOAST */}
             {notification && (
                 <NotificationToast
+                    key={notification.id}
                     message={notification.message}
                     type={notification.type}
                     onDismiss={dismissNotification}

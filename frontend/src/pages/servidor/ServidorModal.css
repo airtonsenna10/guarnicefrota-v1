@@ -36,7 +36,7 @@
 }
 
 .form-row .form-group {
-    flex: 1; /* Distribui o espaço igualmente entre os grupos */
+    flex: 1; /* Distribui o espaço igualmente entre os grupos   */ 
     margin-bottom: 0;
 }
 
@@ -99,4 +99,59 @@
 button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+
+
+
+
+.autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    list-style: none;
+    padding: 0;
+    margin-top: 2px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.autocomplete-suggestions li {
+    padding: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.autocomplete-suggestions li:hover {
+    background-color: #f0f7ff;
+    color: #007bff;
+}
+
+.autocomplete-suggestions li small {
+    color: #777;
+    margin-left: 5px;
+}
+
+.no-suggestion {
+    color: #999;
+    font-style: italic;
+    cursor: default !important;
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    right: 12px;
+    color: #ccc;
 }

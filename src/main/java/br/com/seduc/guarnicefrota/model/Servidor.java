@@ -11,7 +11,7 @@ public class Servidor {
     private Long id;
 
      // Relacionamento com Pessoa (tb01_pessoa)
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE) // funciona ao atualizar o servidor com um usuario existente
     @JoinColumn(name = "fk_pessoa", nullable = false)
     private Pessoa pessoa;
 
@@ -20,8 +20,8 @@ public class Servidor {
     @JoinColumn(name = "fk_setor", nullable = false)
     private Organograma setor;
 
-    @Column(nullable = false)
-    private String nome;
+   // @Column(nullable = false)
+    //private String nome;
 
     @Column(nullable = false, unique = true)
     private String matricula;
@@ -29,24 +29,21 @@ public class Servidor {
     @Column(nullable = false)
     private String cargo;
 
-    @Column(nullable = false)
-    private String contato;
-
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "enum('ativo','inativo')")
+    @Column(columnDefinition = "enum('Ativo','Inativo')")
     private Situacao situacao;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "enum('servidor','terceirizado','estagiario')")
+    @Column(columnDefinition = "enum('Servidor','Terceirizado','Estagiario')")
     private Tipo tipo;
 
     // ENUMS do banco
     public enum Situacao {
-        ativo, inativo
+        Ativo, Inativo
     }
 
     public enum Tipo {
-        servidor, terceirizado, estagiario
+        Servidor, Terceirizado, Estagiario
     }
 
     // Getters and setters
@@ -59,13 +56,6 @@ public class Servidor {
         this.id = id;
     }
 
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
 
     public String getMatricula() {
         return matricula;
@@ -91,11 +81,31 @@ public class Servidor {
         this.cargo = cargo;
     }
 
-    public String getContato() {
-        return contato;
+    public Pessoa getPessoa() {
+        return pessoa;
     }
 
-    public void setContato(String contato) {
-        this.contato = contato;
+    public void setPessoa(Pessoa pessoa) {
+        this.pessoa = pessoa;
     }
+
+    public Situacao getSituacao() {
+        return situacao;
+    }
+
+    public void setSituacao(Situacao situacao) {
+        this.situacao = situacao;
+    }
+
+    public Tipo getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(Tipo tipo) {
+        this.tipo = tipo;
+    }
+
+    
+
+    
 }

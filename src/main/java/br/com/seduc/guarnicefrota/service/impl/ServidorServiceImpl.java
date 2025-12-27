@@ -7,6 +7,7 @@ import br.com.seduc.guarnicefrota.service.ServidorService;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import jakarta.transaction.Transactional;
 
 @Service
 public class ServidorServiceImpl implements ServidorService {
@@ -19,6 +20,7 @@ public class ServidorServiceImpl implements ServidorService {
     }
 
     @Override
+    @Transactional // IMPORTANTE: Garante que a alteração da Pessoa seja enviada ao banco
     public Servidor salvarServidor(Servidor servidor) {
         return servidorRepository.save(servidor);
     }

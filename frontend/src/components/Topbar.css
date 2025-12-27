@@ -1,14 +1,37 @@
 
 
-/* Seletor para a barra de navegação superior. */
+/* Estilos para a barra superior (topbar) da aplicação. */
+
 .topbar {
-    height: 70px; /* Define uma altura fixa de 70 pixels para a barra. */
-    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important; /* Adiciona uma sombra sutil para dar profundidade, com !important para garantir prioridade. */
-    /*border-bottom: 1px solid black; /* Adiciona uma borda preta sólida de 1 pixel na parte inferior da barra. */
-    /*position: relative; /* Garante que o z-index funcione */
-    /*z-index: 1030;      /* Um valor alto para ficar na frente */
+    height: 70px;
+    width: 100%;
+    background-color: #ffffff !important;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    z-index: 1030; /* Acima do conteúdo */
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    flex-shrink: 0; /* Não deixa a barra "esmagar" */
 }
 
+/* Garante que o dropdown abra alinhado à direita da tela */
+.dropdown-menu-end {
+    right: 0 !important;
+    left: auto !important;
+}
+
+
+/* Garante que o container do dropdown não corte o conteúdo */
+.topbar .navbar-collapse {
+    overflow: visible !important;
+}
+
+/* Ajuste fino na posição do menu para não colar na borda da tela */
+.topbar .dropdown-menu {
+    margin-top: 10px;
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
 
 /* Estilo para os links de navegação dentro da barra superior. */
 .topbar .nav-link {

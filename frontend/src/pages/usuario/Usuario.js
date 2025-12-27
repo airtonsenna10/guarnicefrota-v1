@@ -1,18 +1,24 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { FaSearch, FaEye, FaPlus, FaEdit, FaTrashAlt } from 'react-icons/fa'; 
 import { fetchData, sendData } from '../../service/api'; 
-import '../style/style-pagina-principal.css'; // Importa o CSS principal padronizado
-import UsuarioModal from './UsuarioModal'; // Descomentar após criar o arquivo
-import NotificationToast from '../loadingoverlay/NotificationToast'; // Descomentar após criar o arquivo
+import UsuarioModal from './UsuarioModal'; 
+import NotificationToast from '../loadingoverlay/NotificationToast'; 
 
 const Usuario = () => {
+
     const API_ENDPOINT = '/api/pessoas'; 
 
+    // Estados Principais
     const [usuarios, setUsuarios] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [notification, setNotification] = useState(null);
+    
+    // Função para dispensar a notificação
+    const dismissNotification = () => setNotification(null);
 
     // Estado para configurar o modal (usuário e modo de operação)
     const [modalConfig, setModalConfig] = useState({ 
@@ -50,7 +56,7 @@ const Usuario = () => {
         }
     };
     
-    const dismissNotification = () => setNotification(null);
+   
 
 
     // FUNÇÕES PARA ABRIR/FECHAR O MODAL
@@ -116,7 +122,8 @@ const Usuario = () => {
                         <label>Nome</label>
                         <input 
                             type="text" 
-                            className="filtro-input" 
+                            className="filtro-input"
+                            placeholder="Pesquisar por nome..."
                             value={filtroNome}
                             onChange={(e) => setFiltroNome(e.target.value)}
                         />
@@ -189,11 +196,10 @@ const Usuario = () => {
             {/* Renderização do Modal*/}
             {isModalOpen && (
                 <UsuarioModal 
-                //isOpen={isModalOpen}
-                onClose={handleCloseModal}
-                onUsuarioSaved={handleUsuarioSaved}
-                usuarioToEdit={modalConfig.usuario}
-                mode={modalConfig.mode}
+                onClose={handleCloseModal}   // Função para fechar o modal
+                onUsuarioSaved={handleUsuarioSaved}  // Função chamada após salvar
+                usuarioToEdit={modalConfig.usuario}  // Dados do usuário para visualizar/editar
+                mode={modalConfig.mode}     // Modo do modal: 'new', 'view', 'edit'
                 />
         
             )}

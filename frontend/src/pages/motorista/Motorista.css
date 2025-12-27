@@ -1,200 +1,120 @@
-/* Container Geral */
-.motoristas-container {
-    padding: 20px;
-    background-color: #f8f9fa;
-    min-height: calc(100vh - 60px); 
-}
-
-/* Header e Filtros - Reutilização de Servidores/Alertas */
-.header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #ddd;
-    padding-bottom: 10px;
-}
-
-.page-title {
-    color: #343a40;
-    font-size: 1.8em;
-}
-
-.btn-novo-cadastro {
-    background-color: #28a745; 
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.3s;
-}
-
-.area-pesquisa-container {
-    background-color: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 25px;
-}
-
-.area-pesquisa-titulo {
-    color: #495057;
-    margin-top: 0;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-}
-
-.filtros-container {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.filtro-item {
-    display: flex;
-    flex-direction: column;
-    min-width: 200px;
-    flex-grow: 1;
-}
-
-.filtro-item label {
-    font-weight: 500;
-    margin-bottom: 5px;
-    color: #6c757d;
-}
-
-.filtro-input {
-    padding: 8px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 1em;
-}
-
-/* Grid de Cards (Específico de Motoristas) */
-.cards-grid {
+/* --- GRID DE CARDS (Substitui a Tabela) --- */
+.card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
+    padding: 20px 0;
 }
 
-.motorista-card {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+/* --- ESTILO DO CARD DE PERFIL --- */
+.profile-card {
+    background: white;
+    border-radius: 12px;
     padding: 20px;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #edf2f7;
+    transition: transform 0.2s ease;
 }
 
-.motorista-card:hover {
-    transform: translateY(-5px);
+.profile-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
-.card-header {
+/* Header do Card: Avatar + Nome */
+.card-header-profile {
     display: flex;
     align-items: center;
+    gap: 15px;
     margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
+    position: relative;
 }
 
-.user-icon {
-    font-size: 36px;
-    color: #007bff;
-    margin-right: 15px;
+.avatar-container {
+    width: 55px;
+    height: 55px;
+    background-color: #ebf8ff; /* Tom azul claro do prompt */
+    color: #3182ce;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
 }
 
-.card-info-main h3 {
-    margin: 0;
-    font-size: 1.2em;
-    color: #343a40;
+.name-section {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
-.card-info-main p {
-    margin: 2px 0 0;
-    font-size: 0.9em;
-    color: #6c757d;
+.user-name {
+    font-weight: 700;
+    color: #2d3748;
+    font-size: 1.1rem;
 }
 
-.card-menu-dots {
-    margin-left: auto;
+.user-cnh {
+    font-size: 0.85rem;
+    color: #718096;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.menu-dots {
+    background: none;
+    border: none;
+    color: #a0aec0;
     cursor: pointer;
-    color: #6c757d;
+    font-size: 1.1rem;
     padding: 5px;
 }
 
-.card-details p {
+/* Corpo do Card: Contatos */
+.card-body-profile {
+    margin: 15px 0;
+}
+
+.info-row {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 0.95em;
-    margin: 5px 0;
-    color: #495057;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: #4a5568;
+    margin-bottom: 8px;
 }
 
-.card-details svg {
-    color: #007bff;
+.card-divider {
+    border: 0;
+    border-top: 1px solid #edf2f7;
+    margin: 15px 0;
 }
 
-.card-footer {
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px solid #eee;
+/* Footer: Status e Viagens */
+.card-footer-profile {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
+.activity-indicator {
+    color: #718096;
+    font-size: 0.85rem;
+}
+
+.activity-indicator strong {
+    color: #2d3748;
+}
+
+/* Pílulas de Status */
 .status-pill {
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-weight: bold;
-    font-size: 0.8em;
-    text-align: center;
-}
-/* Cores para os Status */
-.status-ativo {
-    background-color: #d4edda;
-    color: #155724;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
 }
 
-.status-viagem {
-    background-color: #cce5ff;
-    color: #004085;
-}
-
-.status-ferias {
-    background-color: #fff3cd;
-    color: #856404;
-}
-
-.status-inativo {
-    background-color: #f8d7da;
-    color: #721c24;
-}
-
-.viagens-count {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: #6c757d;
-    font-size: 0.9em;
-}
-
-.no-data-message {
-    text-align: center;
-    grid-column: 1 / -1; /* Ocupa todas as colunas do grid */
-    padding: 20px;
-    color: #6c757d;
-    font-style: italic;
-}
+.status-pill.ativo, .status-pill.disponivel { background: #c6f6d5; color: #22543d; }
+.status-pill.em-viagem { background: #feebc8; color: #744210; }
+.status-pill.inativo, .status-pill.indisponivel { background: #fed7d7; color: #822727; }

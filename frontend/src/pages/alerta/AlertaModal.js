@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './AlertaModal.css'; 
+//import './AlertaModal.css'; 
 
 const API_BASE_URL = 'http://localhost:8080/api/alertas';
 

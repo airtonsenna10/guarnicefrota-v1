@@ -6,7 +6,7 @@ import { fetchData, sendData } from '../../service/api';
 import NotificationToast from '../loadingoverlay/NotificationToast'; // Descomente após ter o arquivo
 
 // import './Alerta.css'; // REMOVIDO: Será substituído pelo padrão
-import '../style/style-pagina-principal.css'; // NOVO: Importa o CSS padrão de página principal
+//import '../style/style-pagina-principal.css'; // NOVO: Importa o CSS padrão de página principal
 
 const Alerta = () => {
     // Endereço da API para alertas

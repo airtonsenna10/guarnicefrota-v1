@@ -1,3 +1,100 @@
+
+package br.com.seduc.guarnicefrota.controller;
+
+import br.com.seduc.guarnicefrota.model.Motorista;
+import br.com.seduc.guarnicefrota.service.MotoristaService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/motorista")
+//@CrossOrigin(origins = "*") // Permite acesso do Frontend
+public class MotoristaController {
+
+    private final MotoristaService motoristaService;
+
+    public MotoristaController(MotoristaService motoristaService) {
+        this.motoristaService = motoristaService;
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createMotorista(@RequestBody Motorista motorista) {
+        try {
+            Motorista savedMotorista = motoristaService.salvarMotorista(motorista);
+            return new ResponseEntity<>(savedMotorista, HttpStatus.CREATED);
+        } catch (Exception e) {
+            // Retorna erro 400 em caso de CNH duplicada ou dados inválidos
+            return ResponseEntity.badRequest().body("Erro ao criar motorista: " + e.getMessage());
+        }
+    }
+
+    @GetMapping
+    public List<Motorista> getAllMotoristas() {
+        return motoristaService.buscarTodosMotoristas();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Motorista> getMotoristaById(@PathVariable Long id) {
+        Optional<Motorista> motorista = motoristaService.buscarMotoristaPorId(id);
+        return motorista.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateMotorista(@PathVariable Long id, @RequestBody Motorista motoristaDetails) {
+        return motoristaService.buscarMotoristaPorId(id).map(motorista -> {
+            // Atualiza campos básicos
+            motorista.setNome(motoristaDetails.getNome());
+            motorista.setCnh(motoristaDetails.getCnh());
+            motorista.setCategoriaCnh(motoristaDetails.getCategoriaCnh());
+            motorista.setValidadeCnh(motoristaDetails.getValidadeCnh());
+            motorista.setStatus(motoristaDetails.getStatus());
+            motorista.setObservacao(motoristaDetails.getObservacao());
+            
+            // IMPORTANTE: Atualiza o vínculo com o Servidor
+            if (motoristaDetails.getServidor() != null) {
+                motorista.setServidor(motoristaDetails.getServidor());
+            }
+
+            Motorista updatedMotorista = motoristaService.salvarMotorista(motorista);
+            return ResponseEntity.ok(updatedMotorista);
+        }).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMotorista(@PathVariable Long id) {
+        try {
+            motoristaService.deletarMotorista(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/cnh/{cnh}")
+    public ResponseEntity<Motorista> getMotoristaByCnh(@PathVariable String cnh) {
+        Optional<Motorista> motorista = motoristaService.buscarPorCnh(cnh);
+        return motorista.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+
+
+}
+
+
+
+
+
+
+/* 
+
+
+
 package br.com.seduc.guarnicefrota.controller;
 
 import br.com.seduc.guarnicefrota.model.Motorista;
@@ -23,8 +120,10 @@ public class MotoristaController {
 
     @PostMapping
     public ResponseEntity<Motorista> createMotorista(@RequestBody Motorista motorista) {
-        Motorista savedMotorista = motoristaService.salvarMotorista(motorista);
-        return new ResponseEntity<>(savedMotorista, HttpStatus.CREATED);
+    
+            Motorista savedMotorista = motoristaService.salvarMotorista(motorista);
+            return new ResponseEntity<>(savedMotorista, HttpStatus.CREATED);
+        
     }
 
     @GetMapping
@@ -48,7 +147,7 @@ public class MotoristaController {
             motorista.setCnh(motoristaDetails.getCnh());
             motorista.setCategoriaCnh(motoristaDetails.getCategoriaCnh());
             motorista.setValidadeCnh(motoristaDetails.getValidadeCnh());
-            motorista.setAtivo(motoristaDetails.getAtivo());
+            motorista.setStatus(motoristaDetails.getStatus());
             motorista.setObservacao(motoristaDetails.getObservacao());
             Motorista updatedMotorista = motoristaService.salvarMotorista(motorista);
             return ResponseEntity.ok(updatedMotorista);
@@ -74,3 +173,5 @@ public class MotoristaController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
+
+*/

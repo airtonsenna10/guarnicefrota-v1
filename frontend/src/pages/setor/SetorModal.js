@@ -1,3 +1,357 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import LoadingOverlay from '../loadingoverlay/LoadingOverlay'; 
+import { sendData } from '../../service/api';
+import { FaTimes } from 'react-icons/fa';
+
+const SetorModal = ({ onClose, onSetorSaved, setorToEdit, mode, allSetores }) => {
+
+    const isViewMode = mode === 'view';
+    const isEditMode = mode === 'edit';
+    const isNewMode = mode === 'new';
+    
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [erro, setErro] = useState('');
+
+    const initialFormData = useMemo(() => ({
+        nomeSetor: '',
+        responsavel: '',
+        descricao: '',
+        setorSuperiorId: '', 
+    }), []);
+
+    const [formData, setFormData] = useState(initialFormData);
+
+    useEffect(() => {
+        if (setorToEdit && (isEditMode || isViewMode)) {
+            setFormData({
+                nomeSetor: setorToEdit.nomeSetor || '',
+                responsavel: setorToEdit.responsavel || '',
+                descricao: setorToEdit.descricao || '',
+                setorSuperiorId: setorToEdit.setorSuperior ? setorToEdit.setorSuperior.id : '',
+            });
+        } else if (isNewMode) {
+            setFormData(initialFormData);
+        }
+    }, [setorToEdit, mode, isEditMode, isViewMode, isNewMode, initialFormData]);
+
+    const handleChange = (e) => {
+        if (isViewMode) return; 
+        
+        const { id, value } = e.target;
+        let newValue = value;
+
+        if (id === 'nomeSetor') newValue = newValue.toUpperCase();
+
+        setFormData(prev => ({ ...prev, [id]: newValue }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (isViewMode) return; 
+
+        if (isEditMode && (!setorToEdit || !setorToEdit.id)) {
+            setErro("Erro técnico: ID do setor não encontrado.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        setErro('');
+
+        const dataToSend = { 
+            nomeSetor: formData.nomeSetor,
+            responsavel: formData.responsavel,
+            descricao: formData.descricao,
+            setorSuperior: formData.setorSuperiorId 
+                ? { id: parseInt(formData.setorSuperiorId) } 
+                : null
+        };
+        
+        const method = isEditMode ? 'PUT' : 'POST';
+        const url = isEditMode ? `/api/organograma/${setorToEdit.id}` : '/api/organograma';
+
+        try {
+            await sendData(url, method, dataToSend);
+            setIsSubmitting(false);
+            onSetorSaved(isEditMode ? "Setor atualizado!" : "Setor cadastrado!", 'success');
+            onClose();
+        } catch (error) {
+            setIsSubmitting(false);
+            setErro("Erro ao salvar. Verifique se o nome do setor já existe.");
+        } 
+    };
+
+    const setoresDisponiveis = allSetores.filter(s => s.id !== setorToEdit?.id);
+
+    return (
+        <div className="modal-overlay">
+            {isSubmitting && <LoadingOverlay message="Processando..." />}
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h2>{isViewMode ? 'Detalhes do Setor' : isEditMode ? 'Editar Setor' : 'Novo Setor'}</h2>
+                    <button className="modal-close-btn" onClick={onClose}><FaTimes /></button>
+                </div>
+                
+                <form className="modal-form" onSubmit={handleSubmit}>
+                    <div className="form-grid">
+                        <div className="form-group full-width">
+                            <label htmlFor="nomeSetor">Nome do Setor</label>
+                            <input 
+                                type="text" 
+                                id="nomeSetor" 
+                                value={formData.nomeSetor} 
+                                onChange={handleChange} 
+                                required 
+                                disabled={isViewMode}
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="responsavel">Gestor(a) Responsável</label>
+                            <input 
+                                type="text" 
+                                id="responsavel" 
+                                value={formData.responsavel} 
+                                onChange={handleChange} 
+                                required 
+                                disabled={isViewMode}
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="setorSuperiorId">Setor Superior (Pai)</label>
+                            <select 
+                                id="setorSuperiorId" 
+                                value={formData.setorSuperiorId} 
+                                onChange={handleChange}
+                                disabled={isViewMode}
+                            >
+                                <option value="">Nenhum (Setor Raiz)</option>
+                                {setoresDisponiveis.map(s => (
+                                    <option key={s.id} value={s.id}>{s.nomeSetor}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="form-group full-width">
+                            <label htmlFor="descricao">Descrição/Observações</label>
+                            <textarea 
+                                id="descricao" 
+                                value={formData.descricao} 
+                                onChange={handleChange} 
+                                rows="3" 
+                                disabled={isViewMode}
+                                style={{ resize: 'none' }} // Evita que o usuário quebre o layout do modal
+                            />
+                        </div>
+
+                        {erro && <p className="error-message full-width" style={{color: '#e53e3e', fontSize: '0.85rem'}}>{erro}</p>}
+                    </div>
+
+                    <div className="modal-footer">
+                        <button type="button" className="btn-cancel" onClick={onClose}>
+                            {isViewMode ? 'Fechar' : 'Cancelar'}
+                        </button>
+                        {!isViewMode && (
+                            <button type="submit" className="btn-save">
+                                {isEditMode ? 'Salvar Alterações' : 'Cadastrar Setor'}
+                            </button>
+                        )}
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+export default SetorModal;
+
+
+
+
+
+
+
+
+/*
+
+import React, { useState, useEffect, useMemo } from 'react';
+import LoadingOverlay from '../loadingoverlay/LoadingOverlay'; 
+import { sendData } from '../../service/api';
+import { FaTimes } from 'react-icons/fa';
+
+const SetorModal = ({ onClose, onSetorSaved, setorToEdit, mode, allSetores }) => {
+
+    const isViewMode = mode === 'view';
+    const isEditMode = mode === 'edit';
+    const isNewMode = mode === 'new';
+    
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [erro, setErro] = useState('');
+
+    const initialFormData = useMemo(() => ({
+        nomeSetor: '',
+        responsavel: '',
+        descricao: '',
+        setorSuperiorId: '', // Usado apenas para o select
+    }), []);
+
+    const [formData, setFormData] = useState(initialFormData);
+
+    useEffect(() => {
+        if (setorToEdit && (isEditMode || isViewMode)) {
+            setFormData({
+                nomeSetor: setorToEdit.nomeSetor || '',
+                responsavel: setorToEdit.responsavel || '',
+                descricao: setorToEdit.descricao || '',
+                // Se o Java enviou setorSuperior, pegamos o ID dele para o select
+                setorSuperiorId: setorToEdit.setorSuperior ? setorToEdit.setorSuperior.id : '',
+            });
+        } else if (isNewMode) {
+            setFormData(initialFormData);
+        }
+    }, [setorToEdit, mode, isEditMode, isViewMode, isNewMode, initialFormData]);
+
+    const handleChange = (e) => {
+        if (isViewMode) return; 
+        
+        const { id, value } = e.target;
+        let newValue = value;
+
+        if (id === 'nomeSetor') newValue = newValue.toUpperCase();
+
+        setFormData(prev => ({ ...prev, [id]: newValue }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (isViewMode) return; 
+
+        if (isEditMode && (!setorToEdit || !setorToEdit.id)) {
+            setErro("Erro técnico: ID do setor não encontrado.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        setErro('');
+
+        // MAPEAMENTO PARA O BACKEND (Padronizando com a Entity Organograma.java)
+        const dataToSend = { 
+            nomeSetor: formData.nomeSetor,
+            responsavel: formData.responsavel,
+            descricao: formData.descricao,
+            // O Java espera um objeto para o relacionamento ManyToOne
+            setorSuperior: formData.setorSuperiorId 
+                ? { id: parseInt(formData.setorSuperiorId) } 
+                : null
+        };
+        
+        const method = isEditMode ? 'PUT' : 'POST';
+        const url = isEditMode ? `/api/organograma/${setorToEdit.id}` : '/api/organograma';
+
+        try {
+            await sendData(url, method, dataToSend);
+            setIsSubmitting(false);
+            onSetorSaved(isEditMode ? "Setor atualizado!" : "Setor cadastrado!", 'success');
+            onClose();
+        } catch (error) {
+            setIsSubmitting(false);
+            setErro("Erro ao salvar. Verifique se o nome do setor já existe.");
+        } 
+    };
+
+    // Filtra para evitar que um setor seja pai de si mesmo
+    const setoresDisponiveis = allSetores.filter(s => s.id !== setorToEdit?.id);
+
+    const renderViewMode = () => (
+        <div className="view-mode-details form-grid">
+            <div className="form-group full-width"><label>Nome do Setor</label><p>{formData.nomeSetor}</p></div>
+            <div className="form-group"><label>Gestor(a)</label><p>{formData.responsavel}</p></div>
+            <div className="form-group">
+                <label>Setor Superior</label>
+                <p>{setorToEdit?.setorSuperior ? setorToEdit.setorSuperior.nomeSetor : 'Secretaria/Raiz'}</p>
+            </div>
+            <div className="form-group full-width"><label>Descrição</label><p>{formData.descricao || 'Sem descrição'}</p></div>
+        </div>
+    );
+
+    return (
+        <div className="modal-overlay">
+            {isSubmitting && <LoadingOverlay message="Processando..." />}
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h2>{isViewMode ? 'Detalhes do Setor' : isEditMode ? 'Editar Setor' : 'Novo Setor'}</h2>
+                    <button className="modal-close-btn" onClick={onClose}><FaTimes /></button>
+                </div>
+                
+                {isViewMode ? renderViewMode() : (
+                    <form className='form-grid-principal' onSubmit={handleSubmit}>
+                        <div className="form-grid">
+                            <div className="form-group full-width">
+                                <label htmlFor="nomeSetor">Nome do Setor</label>
+                                <input type="text" id="nomeSetor" value={formData.nomeSetor} onChange={handleChange} required />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="responsavel">Gestor(a) Responsável</label>
+                                <input type="text" id="responsavel" value={formData.responsavel} onChange={handleChange} required />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="setorSuperiorId">Setor Superior (Pai)</label>
+                                <select id="setorSuperiorId" value={formData.setorSuperiorId} onChange={handleChange}>
+                                    <option value="">Nenhum (Setor Raiz)</option>
+                                    {setoresDisponiveis.map(s => (
+                                        <option key={s.id} value={s.id}>{s.nomeSetor}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="form-group full-width">
+                                <label htmlFor="descricao">Descrição/Observações</label>
+                                <textarea id="descricao" value={formData.descricao} onChange={handleChange} rows="3" />
+                            </div>
+
+                            {erro && <p className="error-message full-width" style={{color: 'red', fontSize: '0.9rem'}}>{erro}</p>}
+                        </div>
+
+                        <div className="modal-actions">
+                            <button type="button" onClick={onClose}>Cancelar</button>
+                            <button type="submit" className="btn-salvar">
+                                {isEditMode ? 'Salvar Alterações' : 'Cadastrar Setor'}
+                            </button>
+                        </div>
+                    </form>
+                )}
+
+                {isViewMode && (
+                    <div className="modal-actions">
+                        <button type="button" onClick={onClose}>Fechar</button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default SetorModal;
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
 import React, { useState, useEffect } from 'react';
 import { sendData } from '../../service/api'; 
 import './SetorModal.css'; 
@@ -19,12 +373,12 @@ const SetorModal = ({ isOpen, onClose, setorData, allSetores }) => {
             setFormData({
                 pai: setorData.pai || '', // Use '' ou null dependendo da sua API, aqui usamos null como padrão
                 descricao: setorData.descricao || '',
-                nome_setor: setorData.nome_setor || '',
+                nomeSetor: setorData.nomeSetor || '',
                 responsavel: setorData.responsavel || '',
             });
         } else {
              // Resetar para valores vazios ao abrir para novo cadastro
-             setFormData({ pai: '', descricao: '', nome_setor: '', responsavel: '' });
+             setFormData({ pai: '', descricao: '', nomeSetor: '', responsavel: '' });
         }
     }, [setorData]);
 
@@ -80,7 +434,7 @@ const SetorModal = ({ isOpen, onClose, setorData, allSetores }) => {
                 <h2>{setorData ? 'Editar Setor' : 'Novo Setor'}</h2>
                 <form onSubmit={handleSubmit}>
                     
-                    {/* Linha 1: Nome do Setor */}
+                    {/* Linha 1: Nome do Setor 
                     <div className="form-group">
                         <label htmlFor="nome_setor">Nome do Setor</label>
                         <input
@@ -93,7 +447,7 @@ const SetorModal = ({ isOpen, onClose, setorData, allSetores }) => {
                         />
                     </div>
                     
-                    {/* Linha 2: Setor Pai e Responsável */}
+                    {/* Linha 2: Setor Pai e Responsável 
                     <div className="form-row">
                         <div className="form-group">
                             <label htmlFor="pai">Setor Pai (Opcional)</label>
@@ -124,7 +478,7 @@ const SetorModal = ({ isOpen, onClose, setorData, allSetores }) => {
                         </div>
                     </div>
 
-                    {/* Linha 3: Descrição */}
+                    {/* Linha 3: Descrição 
                     <div className="form-group">
                         <label htmlFor="descricao">Descrição</label>
                         <textarea
@@ -151,3 +505,5 @@ const SetorModal = ({ isOpen, onClose, setorData, allSetores }) => {
 };
 
 export default SetorModal;
+
+*/

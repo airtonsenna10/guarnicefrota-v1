@@ -1,55 +1,87 @@
-/* Estilos Globais da Aplicação */
 
 
-/* Seletor para o contêiner principal que envolve a sidebar e o conteúdo da página. */
-#wrapper {
-  display: flex; /* Habilita o layout flexbox, permitindo que a sidebar e o conteúdo fiquem lado a lado. */
-  flex: 1; /* Ocupa o espaço restante */
-  /*overflow-y: hidden; /* Evita rolagem duplicada */
-  /*border: 1px solid black;*/
-}
+/* --- ESTRUTURA GLOBAL --- */
 
-/* Seletor para o contêiner que envolve o conteúdo principal da página (excluindo a sidebar). */
-#page-content-wrapper {
-  flex: 1; /* Faz com que este elemento ocupe todo o espaço horizontal disponível, crescendo conforme necessário. */
-  padding: 20px; /* Adiciona um espaçamento interno de 20 pixels em todos os lados. */
-  overflow-y: auto; /* Permite rolagem no conteúdo */
-  
-}
-
-/* Estilo aplicado quando a classe .sidebar-toggled está presente no contêiner pai. */
-.sidebar-toggled #sidebar-wrapper {
-    margin-left: -20rem; /* Move a sidebar para a esquerda (para fora da tela), escondendo-a. O valor deve ser igual à largura da sidebar. */
-}
-
-/* Define um contêiner principal para toda a aplicação, organizado em coluna e ocupando 100% da altura da tela. */
 .app-container {
-  display: flex; /* Define layout flexbox para organizar elementos internos. */
-  flex-direction: column; /* Organiza os elementos em coluna (um abaixo do outro). */
-  height: 100vh; /* Faz com que o contêiner ocupe exatamente a altura total da janela do navegador. */
+  display: flex;
+  flex-direction: column; /* Coloca Topbar em cima e Wrapper embaixo */
+  height: 100vh;          /* Ocupa 100% da altura da janela */
+  width: 100vw;           /* Ocupa 100% da largura da janela */
+  overflow: hidden;       /* Impede scroll no "corpo" do site */
+
+  isolation: auto; /* Adicionado para evitar conflitos de contexto */
+}
+
+#wrapper {
+  display: flex;          /* Sidebar e Conteúdo lado a lado */
+  flex: 1;                /* Ocupa todo o espaço restante abaixo da Topbar */
+  width: 100%;
+  overflow: hidden;       /* Garante que o scroll aconteça só nos filhos */
+}
+
+/* --- ÁREA DE CONTEÚDO (DIREITA) --- */
+
+#page-content-wrapper {
+  flex: 1;                /* Ocupa o resto da largura ao lado da Sidebar */
+  min-width: 0;           /* CRUCIAL: Impede que tabelas estiquem a largura total */
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fc;
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto;       /* Scroll vertical interno para as tabelas/dashboard */
+  overflow-x: auto;       /* Scroll horizontal apenas se a tabela for muito larga */
+  padding: 25px;
+}
+
+/* --- SIDEBAR (ESQUERDA) --- */
+
+#sidebar-wrapper {
+  width: 220px;
+  flex-shrink: 0;         /* Impede que a sidebar seja "esmagada" pelo conteúdo */
+  transition: width 0.3s ease-in-out;
+  background-color: #090d12;
+  height: 100%;           /* Ocupa toda a altura do wrapper */
+  overflow-y: auto;       /* Scroll interno se o menu for muito longo */
+
+  z-index: 100; /* adicionado - Sidebar em camada baixa */
+
   
 }
 
-/* Estilo aplicado ao elemento onde fica a sidebar. */
-/*
-#sidebar-wrapper {
-  /*min-height: 50%; /* Garante que a sidebar tenha altura mínima de 100% do seu contêiner (tela). */
-  /*transition: margin .25s ease-out; /* Adiciona uma animação suave de 0.25s ao alterar o margin, usada para esconder/exibir a sidebar. */
-  /*border: 1px solid black;
-  width: 13rem; /* Define a largura padrão da sidebar. 
-  
+#sidebar-wrapper.recolhida {
+  width: 80px;
 }
-*/
 
-/* --- ESTILOS DA SIDEBAR (LARGURA E ANIMAÇÃO) --- */
+/* --- SCROLLBAR CUSTOMIZADA --- */
 
-/* 1. Define a largura inicial da sidebar quando ela está expandida. */
-#sidebar-wrapper {
-  width: 220px; 
-  transition: width 0.3s ease-in-out; /* 2. Anima a propriedade 'width' suavemente ao longo de 0.3 segundos. */
-  background-color: #090d12; /* Mantém o fundo escuro que definimos anteriormente */
-  /*border: 1px solid black;*/
-  }
+.content-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.content-area::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 10px;
+}
+
+.content-area::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* --- TOPBAR (ALTERADO: ESSENCIAL PARA O MODAL FUNCIONAR) --- */
+
+.topbar {
+  position: relative; /* Necessário para o z-index obedecer */
+  z-index: 200 !important; /* Maior que sidebar, mas MENOR que o modal */
+  height: 70px;
+  width: 100%;
+  background-color: #ffffff !important;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+  flex-shrink: 0;
+}
+
 
 /* 3. Quando a classe `recolhida` é aplicada... */
 #sidebar-wrapper.recolhida {
@@ -72,10 +104,34 @@
 
 
 
+/* --- SEU MODAL CUSTOMIZADO (ADICIONADO/CORRIGIDO) --- */
 
+/* Esta é a classe que escurece o fundo e bloqueia cliques */
+.modal-overlay {
+  position: fixed;   /* Fixa na tela toda, ignorando scrolls */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* Fundo escuro */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999 !important; /* Valor altíssimo para cobrir Topbar e Sidebar */
+}
 
-
-
+/* Esta é a caixa branca onde estão os inputs */
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  z-index: 10000 !important; /* Sempre acima da overlay */
+  position: relative;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto; /* Scroll interno se o formulário for grande */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
 
 
 

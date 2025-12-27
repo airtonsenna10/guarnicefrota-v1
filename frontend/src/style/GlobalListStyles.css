@@ -1,0 +1,195 @@
+
+/* Estilos para filtros comuns em todas as listagens */
+.filtros-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.filtro-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.filtro-item label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4e73df;
+}
+
+.filtro-input, .filtro-select {
+    padding: 8px 12px;
+    border: 1px solid #d1d3e2;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.filtro-input:focus, .filtro-select:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+
+
+
+/* --- ESTILO DAS TELAS DE LISTAGEM --- */
+
+.main-list-container {
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Cabeçalho da Página */
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #4e73df; /* Azul moderno */
+    margin: 0;
+}
+
+/* Botão Novo Cadastro (Verde Guarnice) */
+.btn-novo-cadastro {
+    background-color: #1cc88a;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(28, 200, 138, 0.2);
+}
+
+.btn-novo-cadastro:hover {
+    background-color: #17a673;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(28, 200, 138, 0.3);
+}
+
+/* Área de Pesquisa Card */
+.area-pesquisa-container {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    border-left: 4px solid #4e73df; /* Detalhe lateral */
+}
+
+.area-pesquisa-titulo {
+    font-size: 1rem;
+    color: #5a5c69;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+/* Tabela Moderna */
+.tabela-wrapper {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+}
+
+.tabela-listagem {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabela-listagem thead {
+    background-color: #f8f9fc;
+    border-bottom: 2px solid #e3e6f0;
+}
+
+.tabela-listagem th {
+    padding: 15px;
+    text-align: left;
+    font-size: 0.85rem;
+    /*text-transform: uppercase;*/
+    color: #4e73df;
+    font-weight: 700;
+}
+
+.tabela-listagem td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f1f3f9;
+    color: #6e707e;
+    font-size: 0.9rem;
+}
+
+.tabela-listagem tr:hover {
+    background-color: #f8f9fc;
+}
+
+/* Botões de Ação na Tabela */
+.action-button {
+    border: none;
+    background: none;
+    padding: 6px;
+    margin: 0 4px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.view-button { color: #36b9cc; }
+.view-button:hover { background: rgba(54, 185, 204, 0.1); }
+
+.edit-button { color: #f6c23e; }
+.edit-button:hover { background: rgba(246, 194, 62, 0.1); }
+
+.delete-button { color: #e74a3b; }
+.delete-button:hover { background: rgba(231, 74, 59, 0.1); }
+
+/* Status Pills (O que você perguntou antes!) */
+.status-pill {
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-disponivel { background: #d1fae5; color: #065f46; }
+.status-em-uso { background: #e0e7ff; color: #3730a3; }
+.status-em-manutencao { background: #fef3c7; color: #92400e; }
+.status-inativo { background: #fee2e2; color: #991b1b; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.descricao-cell {
+    max-width: 200px; /* Ajuste o tamanho conforme sua necessidade */
+}
+
+.text-truncate {
+    white-space: nowrap; /* Impede a quebra de linha */
+    overflow: hidden; /* Esconde o excesso de texto */
+    text-overflow: ellipsis; /* Adiciona reticências (...) */
+    display: block;     /* Garante que o elemento ocupe toda a largura disponível */
+    width: 100%;    /* Garante que o elemento ocupe toda a largura disponível */
+}
+
+/* descrição aparece inteira, mas quebrando as linhas para baixo:
+.descricao-cell {
+    max-width: 300px;
+    word-break: break-word; /* Força a quebra de palavras longas 
+    white-space: normal;    /* Permite a quebra de linha padrão 
+} 
+*/

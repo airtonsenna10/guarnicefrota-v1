@@ -9,7 +9,7 @@ const Topbar = ({ toggleSidebar }) => {
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="ms-auto">
-                    <NavDropdown title="Usuário" id="basic-nav-dropdown">
+                    <NavDropdown title="Usuário" id="basic-nav-dropdown" align="end">
                         <NavDropdown.Item href="#action/3.1">Perfil</NavDropdown.Item>
                         <NavDropdown.Item href="#action/3.2">Configurações</NavDropdown.Item>
                         <NavDropdown.Divider />

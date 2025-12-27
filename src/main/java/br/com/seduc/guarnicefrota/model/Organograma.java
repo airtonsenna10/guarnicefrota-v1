@@ -1,5 +1,7 @@
 package br.com.seduc.guarnicefrota.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -20,8 +22,9 @@ public class Organograma {
 
     // relacionamento recursivo: um item pode ter um pai
     @ManyToOne
-    @JoinColumn(name = "pai")
-    private Organograma pai;
+    @JoinColumn(name = "setor_superior")
+    @JsonIgnoreProperties("setorSuperior") // Isso evita que o JSON tente carregar o pai do pai infinitamente
+    private Organograma setorSuperior;
 
     // Getters and setters
 
@@ -55,5 +58,13 @@ public class Organograma {
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
+    }
+
+    public Organograma getSetorSuperior() {
+        return setorSuperior;
+    }
+
+    public void setSetorSuperior(Organograma setorSuperior) {
+        this.setorSuperior = setorSuperior;
     }
 }

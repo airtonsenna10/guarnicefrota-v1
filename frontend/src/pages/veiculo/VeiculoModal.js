@@ -1,7 +1,210 @@
+import React, { useState, useEffect } from 'react';
+import LoadingOverlay from '../loadingoverlay/LoadingOverlay'; 
+import { sendData } from '../../service/api';
+import { FaTimes } from 'react-icons/fa';
+
+
+const VeiculoModal = ({ onClose, onVeiculoSaved, veiculoToEdit, mode }) => {
+    const isViewMode = mode === 'view';
+    const isEditMode = mode === 'edit';
+    const isNewMode = mode === 'new';
+    
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    const modalTitle = isViewMode ? 'Dados Cadastrais do Veículo' : 
+                       isEditMode ? 'Editar Veículo' : 
+                       'Novo Cadastro de Veículo';
+
+    const initialFormData = {
+        modelo: '', marca: '', placa: '', tipoVeiculo: 'Carro', 
+        capacidade: '', status: 'Disponível', chassi: '', renavam: '', 
+        dataAquisicao: '', propriedade: 'Próprio', categoria: 'Flex', 
+        kml: '', ultimaRevisao: '',
+    };
+    const [formData, setFormData] = useState(initialFormData);
+
+    useEffect(() => {
+        if (veiculoToEdit && (isEditMode || isViewMode)) {
+            const reverseNormalizeEnum = (value) => {
+                if (!value) return '';
+                return value.replace(/_/g, ' ').toLowerCase().replace(/(^|\s)\S/g, l => l.toUpperCase());
+            };
+            
+            setFormData({
+                ...veiculoToEdit,
+                status: reverseNormalizeEnum(veiculoToEdit.status),
+                propriedade: reverseNormalizeEnum(veiculoToEdit.propriedade),
+                categoria: reverseNormalizeEnum(veiculoToEdit.categoria),
+                capacidade: veiculoToEdit.capacidade || '',
+                kml: veiculoToEdit.kml || '',
+            });
+        } else if (isNewMode) {
+            setFormData(initialFormData);
+        }
+    }, [veiculoToEdit, mode, isEditMode, isViewMode, isNewMode]);
+
+    const handleChange = (e) => {
+        if (isViewMode) return; 
+        const { id, value } = e.target;
+        let newValue = value; 
+
+        const identificationFields = ['placa', 'chassi', 'renavam'];
+        const descriptionFields = ['modelo', 'marca', 'tipoVeiculo'];
+
+        if (identificationFields.includes(id)) {
+            newValue = newValue.toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, ''); 
+        } else if (descriptionFields.includes(id)) {
+            newValue = newValue.toUpperCase().trim();
+        }
+
+        setFormData(prev => ({ ...prev, [id]: newValue }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (isViewMode) return; 
+        setIsSubmitting(true);
+
+        const normalizeEnum = (value) => {
+            if (!value) return '';
+            return value.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '_'); 
+        };
+
+        const kmlValue = formData.kml ? String(formData.kml).replace(',', '.') : null;
+
+        const dataToSend = {
+            ...(isEditMode && veiculoToEdit.id && {id: veiculoToEdit.id}),
+            ...formData,
+            tipoVeiculo: formData.tipoVeiculo ? formData.tipoVeiculo.toUpperCase() : '',
+            status: normalizeEnum(formData.status), 
+            propriedade: normalizeEnum(formData.propriedade),
+            categoria: normalizeEnum(formData.categoria),
+            kml: kmlValue ? parseFloat(kmlValue) : null,
+        };
+        
+        const method = isEditMode ? 'PUT' : 'POST';
+        const url = isEditMode ? `/api/veiculos/${veiculoToEdit.id}` : '/api/veiculos';
+        const successMsg = isEditMode ? "Veículo atualizado com sucesso!" : "Veículo cadastrado com sucesso!";
+
+        try {
+            await sendData(url, method, dataToSend);
+            setIsSubmitting(false);
+            onVeiculoSaved(successMsg, 'success');
+            onClose();
+        } catch (error) {
+            setIsSubmitting(false);
+            onVeiculoSaved(`Erro ao processar veículo.`, 'error');
+        } 
+    };
+
+    const tiposVeiculo = ["Carro", "Utilitário", "Moto", "Van", "Micro-ônibus", "Ônibus", "Caminhão"];
+    const statusOpcoes = ["Disponível", "Em Uso", "Em Manutenção", "Inativo"];
+    const propriedades = ["Próprio", "Cedido", "Alugado"];
+    const categorias = ["Elétrico", "Híbrido", "Flex", "Álcool", "Gasolina", "Diesel", "GNV"];
+
+    return (
+        <div className="modal-overlay">
+            {isSubmitting && <LoadingOverlay message={isEditMode ? "Atualizando..." : "Salvando..."} />}
+
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h2>{modalTitle}</h2>
+                    <button className="modal-close-btn" onClick={onClose} title="Fechar"><FaTimes /></button>
+                </div>
+                
+                <form onSubmit={handleSubmit} className='modal-form'>
+                    <div className="form-grid">
+                        <div className="form-group">
+                            <label htmlFor="modelo">Modelo</label>
+                            <input type="text" id="modelo" value={formData.modelo} onChange={handleChange} required disabled={isViewMode} placeholder="Ex: RANGER" />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="marca">Marca</label>
+                            <input type="text" id="marca" value={formData.marca} onChange={handleChange} required disabled={isViewMode} placeholder="Ex: FORD" />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="placa">Placa</label>
+                            <input type="text" id="placa" value={formData.placa} onChange={handleChange} required maxLength="8" disabled={isViewMode} placeholder="ABC1D23" /> 
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="tipoVeiculo">Tipo de Veículo</label>
+                            <select id="tipoVeiculo" value={formData.tipoVeiculo} onChange={handleChange} disabled={isViewMode}>
+                                {tiposVeiculo.map(tipo => (<option key={tipo} value={tipo}>{tipo}</option>))}
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="capacidade">Capacidade (Pessoas)</label>
+                            <input type="number" id="capacidade" value={formData.capacidade} onChange={handleChange} required min="1" disabled={isViewMode} />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="status">Status</label>
+                            <select id="status" value={formData.status} onChange={handleChange} disabled={isViewMode}>
+                                {statusOpcoes.map(s => (<option key={s} value={s}>{s}</option>))}
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="chassi">Chassi</label>
+                            <input type="text" id="chassi" value={formData.chassi} onChange={handleChange} maxLength="20" disabled={isViewMode} />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="renavam">Renavam</label>
+                            <input type="text" id="renavam" value={formData.renavam} onChange={handleChange} maxLength="11" disabled={isViewMode} />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="dataAquisicao">Data da Aquisição</label>
+                            <input type="date" id="dataAquisicao" value={formData.dataAquisicao} onChange={handleChange} disabled={isViewMode} />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="propriedade">Propriedade</label>
+                            <select id="propriedade" value={formData.propriedade} onChange={handleChange} disabled={isViewMode}>
+                                {propriedades.map(p => (<option key={p} value={p}>{p}</option>))}
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="categoria">Combustível</label>
+                            <select id="categoria" value={formData.categoria} onChange={handleChange} disabled={isViewMode}>
+                                {categorias.map(c => (<option key={c} value={c}>{c}</option>))}
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="kml">Km/l Médio</label>
+                            <input type="number" id="kml" value={formData.kml} onChange={handleChange} step="0.01" disabled={isViewMode} />
+                        </div>
+                         <div className="form-group">
+                                <label htmlFor="ultimaRevisao">Última Revisão</label>
+                                <input type="date" id="ultimaRevisao" value={formData.ultimaRevisao} onChange={handleChange} disabled={isViewMode} />
+                        </div>
+                    </div>
+
+                    <div className="modal-footer">
+                        <button type="button" className="btn-cancel" onClick={onClose}>
+                            {isViewMode ? 'Fechar' : 'Cancelar'}
+                        </button>
+                        {!isViewMode && (
+                            <button type="submit" className="btn-save" disabled={isSubmitting}>
+                                {isEditMode ? 'Salvar Edição' : 'Salvar Cadastro'}
+                            </button>
+                        )}
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+export default VeiculoModal;
+
+
+
+
+
+
+
+/*
+
 
 import React, { useState, useEffect } from 'react';
-//import './VeiculoModal.css';
-import '../style/style-pagina-modal.css'; // Importa o CSS Modal
+
 import LoadingOverlay from '../loadingoverlay/LoadingOverlay'; 
 import { sendData } from '../../service/api';
 import { FaTimes } from 'react-icons/fa';
@@ -9,7 +212,7 @@ import { FaTimes } from 'react-icons/fa';
 // Recebe as novas props: veiculoToEdit (dados) e mode ('new', 'view', 'edit')
 const VeiculoModal = ({ onClose, onVeiculoSaved, veiculoToEdit, mode }) => {
     
-    // 🔑 NOVAS VARIÁVEIS DE ESTADO E LÓGICA
+    // NOVAS VARIÁVEIS DE ESTADO E LÓGICA
     const isViewMode = mode === 'view';
     const isEditMode = mode === 'edit';
     const isNewMode = mode === 'new';
@@ -224,10 +427,10 @@ const VeiculoModal = ({ onClose, onVeiculoSaved, veiculoToEdit, mode }) => {
 
             <div className="modal-content">
                 <h2>{modalTitle}</h2>
-                {/*<button className="modal-close-btn" onClick={onClose}>&times;</button>*/}
+                {/*<button className="modal-close-btn" onClick={onClose}>&times;</button>
                 <button className="modal-close-btn" onClick={onClose} title="Fechar" ><FaTimes /> </button>
                 
-                {/* Renderiza o Modo Visualização OU o Formulário */}
+                {/* Renderiza o Modo Visualização OU o Formulário 
                 {isViewMode ? renderViewMode() : (
                     <form className='form-grid-principal' onSubmit={handleSubmit}>
                         <div className="form-grid">
@@ -301,7 +504,7 @@ const VeiculoModal = ({ onClose, onVeiculoSaved, veiculoToEdit, mode }) => {
                         </div>
                         <div className="modal-actions">
                             <button type="button" onClick={onClose} disabled={isSubmitting}>Cancelar</button>
-                            {/* Oculta o botão Salvar/Atualizar se for Visualização */}
+                            {/* Oculta o botão Salvar/Atualizar se for Visualização 
                             {(!isViewMode) && (
                                 <button type="submit" disabled={isSubmitting}>
                                     {isEditMode ? 'Salvar Edição' : 'Salvar'}
@@ -311,7 +514,7 @@ const VeiculoModal = ({ onClose, onVeiculoSaved, veiculoToEdit, mode }) => {
                     </form>
                 )}
                 
-                {/* Botão Fechar/Cancelar no modo Visualização */}
+                {/* Botão Fechar/Cancelar no modo Visualização 
                 {isViewMode && (
                     <div className="modal-actions">
                         <button type="button" onClick={onClose}>Fechar</button>
@@ -324,7 +527,7 @@ const VeiculoModal = ({ onClose, onVeiculoSaved, veiculoToEdit, mode }) => {
 
 export default VeiculoModal;
 
-
+*/
 
 
 

@@ -1,13 +1,219 @@
 import React, { useState, useEffect } from 'react';
-import { FaSearch, FaPlus, FaPhone, FaEnvelope, FaCar, FaUser, FaEllipsisV } from 'react-icons/fa'; 
-import './Motorista.css'; 
+import { FaSearch, FaPlus, FaPhone, FaEnvelope, FaUser, FaEllipsisV, FaCar, FaIdCard } from 'react-icons/fa'; 
 import { fetchData, sendData } from '../../service/api'; 
-//import MotoristaModal from './MotoristaModal'; 
+import MotoristaModal from './MotoristaModal'; 
+import NotificationToast from '../loadingoverlay/NotificationToast'; 
+import './Motorista.css';
+
+
+const Motorista = () => {
+
+    const API_ENDPOINT = '/api/motorista'; 
+
+    // Estados Principais
+    const [motoristas, setMotoristas] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [notification, setNotification] = useState(null);
+    
+    // Função para dispensar a notificação
+    const dismissNotification = () => setNotification(null);
+
+    // Estado para configurar o modal (seguindo padrão Usuario)
+    const [modalConfig, setModalConfig] = useState({ 
+        motorista: null, 
+        mode: 'new'    // 'new', 'view', 'edit'
+    });
+
+    // Estados de Filtro
+    const [filtroBusca, setFiltroBusca] = useState('');
+    const [filtroStatus, setFiltroStatus] = useState('Todos');
+
+    // --- Funções de Carregamento de Dados ---
+    const getMotoristas = async () => {
+        try {
+            setLoading(true);
+            const data = await fetchData(API_ENDPOINT); 
+            setMotoristas(data);
+            setLoading(false);
+        } catch (err) {
+            setError(err.message);
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        getMotoristas();
+    }, []);
+
+    // Função que o MODAL chamará no sucesso ou erro
+    const handleMotoristaSaved = (message, type) => {
+        setNotification({ message, type });
+        if (type === 'success') {
+            getMotoristas();
+        }
+    };
+
+    // FUNÇÕES PARA ABRIR/FECHAR O MODAL
+    const handleOpenModal = () => {
+        setModalConfig({ motorista: null, mode: 'new' });
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setModalConfig({ motorista: null, mode: 'new' });
+    };
+
+    // --- Funções de Ação (Adaptadas para o Menu de Dots no Card) ---
+    const handleEditar = (motorista) => {
+        setModalConfig({ motorista: motorista, mode: 'edit' }); 
+        setIsModalOpen(true);
+    };
+
+    // --- Filtro ---
+    const motoristasFiltrados = motoristas.filter(motorista => {
+        const buscaLower = filtroBusca.toLowerCase();
+        const nomeMatch = motorista.nome?.toLowerCase().includes(buscaLower);
+        const cnhMatch = motorista.categoriaCnh?.toLowerCase().includes(buscaLower);
+        const statusMatch = filtroStatus === 'Todos' || motorista.status === filtroStatus;
+        
+        return (nomeMatch || cnhMatch) && statusMatch;
+    });
+
+    if (loading) return <div className="main-list-container">Carregando...</div>;
+    if (error) return <div className="main-list-container">Erro: {error}</div>;
+
+    return (
+        <div className="main-list-container">
+            <div className="header-container">
+                <h1 className="page-title">Cadastro de Motoristas</h1>
+                <button className="btn-novo-cadastro" onClick={handleOpenModal}>
+                    <FaPlus /> Novo Cadastro
+                </button>
+            </div>
+
+            <div className="area-pesquisa-container">
+                <h3 className="area-pesquisa-titulo"><FaSearch /> Área de Pesquisa</h3>
+                <div className="filtros-container">
+                    <div className="filtro-item">
+                        <label>Nome ou Categoria CNH</label>
+                        <input 
+                            type="text" 
+                            className="filtro-input"
+                            placeholder="Pesquisar..."
+                            value={filtroBusca}
+                            onChange={(e) => setFiltroBusca(e.target.value)}
+                        />
+                    </div>
+                    <div className="filtro-item">
+                        <label>Status</label>
+                        <select className="filtro-select" value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)}>
+                            <option value="Todos">Todos</option>
+                            <option value="Disponivel">Disponível</option>
+                            <option value="Em Viagem">Em Viagem</option>
+                            <option value="Indisponivel">Indisponível</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            {/* LISTAGEM EM FORMATO DE CARDS */}
+            <div className="card-grid">
+                {motoristasFiltrados.length > 0 ? (
+                    motoristasFiltrados.map((motorista) => (
+                        <div key={motorista.id_motorista} className="profile-card">
+                            {/* Avatar, Nome e Menu Dots */}
+                            <div className="card-header-profile">
+                                <div className="avatar-container">
+                                    <FaUser className="avatar-icon" />
+                                </div>
+                                <div className="name-section">
+                                    <span className="user-name">{motorista.nome}</span>
+                                    <span className="user-cnh">
+                                        <FaIdCard /> CNH: {motorista.categoriaCnh}
+                                    </span>
+                                </div>
+                                <button className="menu-dots" onClick={() => handleEditar(motorista)}>
+                                    <FaEllipsisV />
+                                </button>
+                            </div>
+
+                            {/* Informações de Contato */}
+                            <div className="card-body-profile">
+                                <div className="info-row">
+                                    <FaPhone /> <span>{motorista.servidor?.pessoa?.celular || '(00) 00000-0000'}</span>
+                                </div>
+                                <div className="info-row">
+                                    <FaEnvelope /> <span>{motorista.servidor?.pessoa?.email || 'Não informado'}</span>
+                                </div>
+                            </div>
+
+                            <hr className="card-divider" />
+
+                            {/* Status e Atividade */}
+                            <div className="card-footer-profile">
+                                <span className={`status-pill ${motorista.status?.toLowerCase().replace(/\s+/g, '-')}`}>
+                                    {motorista.status || 'Ativo'}
+                                </span>
+                                <div className="activity-indicator">
+                                    <FaCar /> <strong>{motorista.viagens_realizadas || 0}</strong> <small>viagens</small>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="mensagem-tabela-vazia">Nenhum motorista encontrado.</div>
+                )}
+            </div>
+
+            {/* Renderização do Modal */}
+            {isModalOpen && (
+                <MotoristaModal 
+                    onClose={handleCloseModal}
+                    onSaved={handleMotoristaSaved}
+                    motoristaToEdit={modalConfig.motorista}
+                    mode={modalConfig.mode}
+                />
+            )}
+
+            {/* Renderização da Notificação */}
+            {notification && (
+                <NotificationToast
+                    message={notification.message}
+                    type={notification.type}
+                    onDismiss={dismissNotification}
+                    duration={3000} 
+                />
+            )}
+
+        </div>
+    );
+};
+
+export default Motorista;
+
+
+
+
+
+
+
+
+
+
+/*
+
+import React, { useState, useEffect } from 'react';
+import { FaSearch, FaPlus, FaPhone, FaEnvelope, FaCar, FaUser, FaEllipsisV } from 'react-icons/fa'; 
+import { fetchData, sendData } from '../../service/api'; 
+
 
 const Motoristas = () => {
     const [motoristas, setMotoristas] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [motoristaParaEdicao, setMotoristaParaEdicao] = useState(null);
+    
 
     // Estados de Filtro (Nome/CNH/Status)
     const [filtroBusca, setFiltroBusca] = useState('');
@@ -32,13 +238,11 @@ const Motoristas = () => {
     // --- Funções do Modal ---
 
     const handleOpenModal = (motorista = null) => {
-        setMotoristaParaEdicao(motorista); 
         setIsModalOpen(true);
     };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        setMotoristaParaEdicao(null);
         fetchMotoristas(); // Recarrega a lista após fechar
     };
 
@@ -63,7 +267,6 @@ const Motoristas = () => {
     // --- Lógica de Filtro ---
     const motoristasFiltrados = motoristas.filter(motorista => {
         const nomeOuCnh = `${motorista.nome} ${motorista.cnh_categoria || ''}`.toLowerCase();
-        
         const buscaMatch = nomeOuCnh.includes(filtroBusca.toLowerCase());
         const statusMatch = filtroStatus === 'Todos' || motorista.status?.toUpperCase() === filtroStatus.toUpperCase();
         
@@ -85,7 +288,7 @@ const Motoristas = () => {
                 </button>
             </div>
 
-            {/* Área de Pesquisa/Filtros */}
+            {/* Área de Pesquisa/Filtros 
             <div className="area-pesquisa-container">
                 <h3 className="area-pesquisa-titulo">
                     <FaSearch /> Área de Pesquisa
@@ -121,7 +324,7 @@ const Motoristas = () => {
                 </div>
             </div>
 
-            {/* Grid de Cards */}
+            {/* Grid de Cards 
             <div className="cards-grid">
                 {motoristasFiltrados.map((motorista) => (
                     <div key={motorista.id_motorista} className="motorista-card">
@@ -153,15 +356,7 @@ const Motoristas = () => {
                 )}
             </div>
             
-            {/* Modal 
-            {isModalOpen && (
-                <MotoristaModal
-                    isOpen={isModalOpen}
-                    onClose={handleCloseModal}
-                    motoristaData={motoristaParaEdicao}
-                />
-            )}
-              */}
+            
         </div>
     );
 };
@@ -169,7 +364,7 @@ const Motoristas = () => {
 export default Motoristas;
 
 
-
+*/
 
 
 

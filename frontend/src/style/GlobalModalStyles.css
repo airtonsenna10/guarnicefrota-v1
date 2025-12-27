@@ -1,0 +1,268 @@
+/* --- ESTILO PARA OS MODAIS ATUALIZADO --- */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    width: 90%;
+    max-width: 700px; /* Aumentei um pouco para caber as duas colunas com folga */
+    max-height: 90vh; /* Não deixa o modal encostar no topo/fundo da tela */
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column; /* Organiza Topo, Meio e Fundo */
+    position: relative;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    overflow: hidden; /* Garante que o conteúdo não saia pelas bordas arredondadas */
+}
+
+/* Cabeçalho Fixo */
+.modal-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid #edf2f7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #2d3748;
+    font-weight: 700;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    color: #a0aec0;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.modal-close-btn:hover {
+    color: #e53e3e;
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden; /* Importante para o scroll interno funcionar */
+}
+
+/* Área do Formulário com Scroll Inteligente */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 25px;
+    overflow-y: auto; /* O scroll só aparece aqui se necessário */
+    flex: 1; /* Faz o formulário ocupar o espaço disponível */
+    background-color: #fcfcfc;
+}
+
+/* Estilização da Barra de Rolagem (Chrome, Edge, Safari) */
+/* Força a barra de rolagem a ser visível e elegante */
+.form-grid::-webkit-scrollbar {
+    width: 8px !important;
+    display: block !important;
+}
+
+.form-grid::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.form-grid::-webkit-scrollbar-thumb {
+    background: #cbd5e0 !important;
+    border-radius: 10px;
+}
+
+.form-grid::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}
+
+/* Estilo dos Grupos de Input */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.form-group input, 
+.form-group select {
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #2d3748;
+    transition: all 0.2s;
+}
+
+.form-group input:focus, 
+.form-group select:focus {
+    border-color: #4299e1;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+}
+
+.form-group input:disabled, 
+.form-group select:disabled {
+    background-color: #edf2f7;
+    cursor: not-allowed;
+    color: #718096;
+}
+
+/* Rodapé Fixo */
+.modal-footer {
+    padding: 15px 25px;
+    border-top: 1px solid #edf2f7;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    background-color: white;
+}
+
+.btn-save {
+    background-color: #38a169;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-save:hover {
+    background-color: #2f855a;
+}
+
+.btn-cancel {
+    background-color: #edf2f7;
+    color: #4a5568;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-cancel:hover {
+    background-color: #e2e8f0;
+}
+
+
+
+/* Estilos Adicionais aplicado a um elemento do grid */
+/* Força um elemento do grid a ocupar as duas colunas */
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+/* Container para inputs que possuem ícones internos */
+.input-with-icon {
+    position: relative;
+    width: 100%;
+}
+
+.input-with-icon input {
+    width: 100%;
+    padding-right: 40px; /* Abre espaço para o ícone não sobrepor o texto */
+}
+
+.input-with-icon .input-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0aec0;
+    pointer-events: none;
+    font-size: 0.9rem;
+}
+
+/* Garante que a lista de sugestões acompanhe a largura do campo pai */
+.autocomplete-suggestions {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+
+
+/* Estilos para Autocomplete de ServidorModal.js */
+
+.autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.autocomplete-suggestions li {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.autocomplete-suggestions li:hover {
+    background-color: #f8f9fa;
+    color: #007bff;
+}
+
+.autocomplete-suggestions li small {
+    display: block;
+    color: #666;
+}
+
+
+/* Divisor de seções dentro do formulário */
+.form-divider {
+    grid-column: 1 / -1; /* Ocupa a largura toda */
+    margin: 15px 0 5px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #edf2f7; /* Linha sutil para separar */
+}
+
+.form-divider h3 {
+    font-size: 1rem;
+    color: #4a5568;
+    margin: 0;
+    font-weight: 700;
+    text-transform: uppercase; /* Opcional: dá um ar mais profissional */
+    letter-spacing: 0.5px;
+}

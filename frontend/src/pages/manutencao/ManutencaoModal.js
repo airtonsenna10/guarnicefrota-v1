@@ -1,6 +1,197 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import './ManutencaoModal.css';
+import LoadingOverlay from '../loadingoverlay/LoadingOverlay'; 
+import { sendData } from '../../service/api';
+import { FaTimes } from 'react-icons/fa';
+
+const ManutencaoModal = ({ onClose, onManutencaoSaved, manutencaoToEdit, mode }) => {
+    // LÓGICA DE MODO
+    const isViewMode = mode === 'view';
+    const isEditMode = mode === 'edit';
+    const isNewMode = mode === 'new';
+    
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Título padronizado
+    const modalTitle = isViewMode ? 'Dados Cadastrais da Manutenção' : 
+                       isEditMode ? 'Editar Manutenção' : 
+                       'Novo Cadastro de Manutenção';
+
+    const initialFormData = useMemo(() => ({
+        placa: '', 
+        modelo: '', 
+        tipoManutencao: '', 
+        descricao: '', 
+        dataInicio: '', 
+        previsaoEntrega: '', 
+        horarioMarcado: '', 
+        status: 'Não Iniciado',
+    }), []);
+
+    const [formData, setFormData] = useState(initialFormData);
+
+    useEffect(() => {
+        if (manutencaoToEdit && (isEditMode || isViewMode)) {
+            const reverseNormalizeEnum = (value) => {
+                if (!value) return '';
+                return value.replace(/_/g, ' ').toLowerCase().replace(/(^|\s)\S/g, l => l.toUpperCase());
+            };
+            
+            setFormData({
+                ...manutencaoToEdit,
+                placa: manutencaoToEdit.veiculo?.placa || '',
+                modelo: manutencaoToEdit.veiculo?.modelo || '',
+                status: reverseNormalizeEnum(manutencaoToEdit.status),
+            });
+        } else if (isNewMode) {
+            setFormData(initialFormData);
+        }
+    }, [manutencaoToEdit, mode, isEditMode, isViewMode, isNewMode, initialFormData]);
+
+    const handleChange = (e) => {
+        if (isViewMode) return;
+        const { id, value } = e.target;
+        let newValue = value;
+
+        if (id === 'placa') {
+            newValue = newValue.toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, ''); 
+        } else if (['tipoManutencao', 'descricao'].includes(id)) {
+            newValue = newValue.toUpperCase().trim();
+        }
+        
+        setFormData(prev => ({ ...prev, [id]: newValue }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault(); 
+        if (isViewMode) return; 
+        setIsSubmitting(true); 
+
+        const normalizeEnum = (value) => {
+            if (!value) return '';
+            return value.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '_'); 
+        };
+
+        const dataToSend = {
+            ...(isEditMode && manutencaoToEdit.id && {id: manutencaoToEdit.id}),
+            veiculo: { placa: formData.placa },
+            tipoManutencao: formData.tipoManutencao,
+            descricao: formData.descricao,
+            dataInicio: formData.dataInicio, 
+            previsaoEntrega: formData.previsaoEntrega, 
+            horarioMarcado: formData.horarioMarcado,
+            status: normalizeEnum(formData.status), 
+        };
+        
+        const method = isEditMode ? 'PUT' : 'POST';
+        const url = isEditMode ? `/api/manutencoes/${manutencaoToEdit.id}` : '/api/manutencoes';
+        const successMsg = isEditMode ? "Manutenção atualizada com sucesso!" : "Manutenção cadastrada com sucesso!";
+
+        try {
+            await sendData(url, method, dataToSend);
+            setIsSubmitting(false);
+            onManutencaoSaved(successMsg, 'success');
+            onClose();
+        } catch (error) {
+            setIsSubmitting(false);
+            onManutencaoSaved(`Erro ao processar manutenção.`, 'error');
+        } 
+    };
+
+    const statusOpcoes = ["Concluída", "Não Iniciado", "Cancelada", "Em Andamento"];
+
+    return (
+        <div className="modal-overlay">
+            {isSubmitting && <LoadingOverlay message={isEditMode ? "Atualizando..." : "Salvando..."} />}
+
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h2>{modalTitle}</h2>
+                    <button className="modal-close-btn" onClick={onClose} title="Fechar"><FaTimes /></button>
+                </div>
+                
+                <form onSubmit={handleSubmit} className='modal-form'>
+                    <div className="form-grid">
+                        {/* Se estiver visualizando, mostra o modelo (campo informativo) */}
+                        {isViewMode && (
+                            <div className="form-group">
+                                <label>Modelo do Veículo</label>
+                                <input type="text" value={formData.modelo} disabled />
+                            </div>
+                        )}
+
+                        <div className="form-group">
+                            <label htmlFor="placa">Placa do Veículo</label>
+                            <input type="text" id="placa" value={formData.placa} onChange={handleChange} required maxLength="8" disabled={isViewMode} placeholder="ABC1D23" />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="tipoManutencao">Tipo de Manutenção</label>
+                            <input type="text" id="tipoManutencao" value={formData.tipoManutencao} onChange={handleChange} required disabled={isViewMode} placeholder="Ex: TROCA DE ÓLEO" />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="dataInicio">Data de Início</label>
+                            <input type="date" id="dataInicio" value={formData.dataInicio} onChange={handleChange} required disabled={isViewMode} />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="previsaoEntrega">Previsão de Entrega</label>
+                            <input type="date" id="previsaoEntrega" value={formData.previsaoEntrega} onChange={handleChange} disabled={isViewMode} />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="horarioMarcado">Horário Marcado</label>
+                            <input type="time" id="horarioMarcado" value={formData.horarioMarcado} onChange={handleChange} disabled={isViewMode} />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="status">Status</label>
+                            <select id="status" value={formData.status} onChange={handleChange} disabled={isViewMode}>
+                                {statusOpcoes.map(s => (<option key={s} value={s}>{s}</option>))}
+                            </select>
+                        </div>
+
+                        {/* Textarea ocupando largura total se necessário */}
+                        <div className="form-group full-width">
+                            <label htmlFor="descricao">Descrição do Serviço</label>
+                            <textarea id="descricao" value={formData.descricao} onChange={handleChange} required disabled={isViewMode} rows="3" />
+                        </div>
+                    </div>
+
+                    <div className="modal-footer">
+                        <button type="button" className="btn-cancel" onClick={onClose}>
+                            {isViewMode ? 'Fechar' : 'Cancelar'}
+                        </button>
+                        {!isViewMode && (
+                            <button type="submit" className="btn-save" disabled={isSubmitting}>
+                                {isEditMode ? 'Salvar Edição' : 'Salvar Cadastro'}
+                            </button>
+                        )}
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+export default ManutencaoModal;
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+
+import React, { useState, useEffect, useMemo } from 'react';
 import LoadingOverlay from '../loadingoverlay/LoadingOverlay'; 
 import { sendData } from '../../service/api';
 import { FaTimes } from 'react-icons/fa';
@@ -165,7 +356,7 @@ const ManutencaoModal = ({ onClose, onManutencaoSaved, manutencaoToEdit, mode })
 
     const renderViewMode = () => (
         <div className="view-mode-details form-grid">
-             {/* Exibe o modelo do veículo (opcional) */}
+             {/* Exibe o modelo do veículo (opcional) 
             <div className="form-group">
                 <label>Modelo do Veículo</label>
                 <p>{formData.modelo || 'N/A'}</p>
@@ -218,7 +409,7 @@ const ManutencaoModal = ({ onClose, onManutencaoSaved, manutencaoToEdit, mode })
                 <h2>{modalTitle}</h2>
                 <button className="modal-close-btn" onClick={onClose} title="Fechar" ><FaTimes /> </button>
                 
-                {/* Renderiza o Modo Visualização OU o Formulário */}
+                {/* Renderiza o Modo Visualização OU o Formulário 
                 {isViewMode ? renderViewMode() : (
                     <form className='form-grid-principal' onSubmit={handleSubmit}>
                         <div className="form-grid">
@@ -250,7 +441,7 @@ const ManutencaoModal = ({ onClose, onManutencaoSaved, manutencaoToEdit, mode })
                                 />
                             </div>
                             
-                            {/* Descrição completa (usa o 'full-width' CSS para ocupar 2 colunas) */}
+                            {/* Descrição completa (usa o 'full-width' CSS para ocupar 2 colunas) 
                             <div className="form-group full-width">
                                 <label htmlFor="descricao">Descrição do Serviço</label>
                                 <textarea 
@@ -307,7 +498,7 @@ const ManutencaoModal = ({ onClose, onManutencaoSaved, manutencaoToEdit, mode })
                         </div>
                         <div className="modal-actions">
                             <button type="button" onClick={onClose} disabled={isSubmitting}>Cancelar</button>
-                            {/* Oculta o botão Salvar/Atualizar se for Visualização */}
+                            {/* Oculta o botão Salvar/Atualizar se for Visualização 
                             {(!isViewMode) && (
                                 <button type="submit" disabled={isSubmitting}>
                                     {isEditMode ? 'Salvar Edição' : 'Salvar'}
@@ -317,7 +508,7 @@ const ManutencaoModal = ({ onClose, onManutencaoSaved, manutencaoToEdit, mode })
                     </form>
                 )}
                 
-                {/* Botão Fechar/Cancelar no modo Visualização */}
+                {/* Botão Fechar/Cancelar no modo Visualização 
                 {isViewMode && (<div className="modal-actions"> <button type="button" onClick={onClose}>Fechar</button></div>)}
             </div>
         </div>
@@ -327,16 +518,7 @@ const ManutencaoModal = ({ onClose, onManutencaoSaved, manutencaoToEdit, mode })
 export default ManutencaoModal;
 
 
-
-
-
-
-
-
-
-
-
-
+*/
 
 
 

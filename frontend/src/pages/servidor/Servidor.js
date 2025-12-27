@@ -1,3 +1,610 @@
+
+import React, { useState, useEffect } from 'react';
+import { FaSearch, FaPlus, FaEdit, FaTrashAlt, FaEye } from 'react-icons/fa';
+import { fetchData, sendData } from '../../service/api'; 
+import ServidorModal from './ServidorModal';
+//import '../style/style-pagina-principal.css';
+import NotificationToast from '../loadingoverlay/NotificationToast'; 
+
+const Servidor = () => {
+    const API_ENDPOINT = '/api/servidor';
+
+    // Estados Principais
+    const [servidores, setServidores] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [notification, setNotification] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Estado de configuração do modal (seguindo o padrão Usuario)
+    const [modalConfig, setModalConfig] = useState({ 
+        servidor: null, 
+        mode: 'new' 
+    });
+
+    const dismissNotification = () => setNotification(null);
+
+    // Filtros
+    const [filtroNome, setFiltroNome] = useState('');
+    const [filtroSetor, setFiltroSetor] = useState('');
+    const [filtroStatus, setFiltroStatus] = useState('Todos');
+
+    const carregarServidores = async () => {
+        try {
+            setLoading(true);
+            const data = await fetchData(API_ENDPOINT);
+            setServidores(data);
+        } catch (error) {
+            console.error("Erro ao buscar servidores:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        carregarServidores();
+    }, []);
+
+    // Função padronizada de resposta do Modal
+    const handleServidorSaved = (message, type) => {
+        setNotification({ message, type, id: Date.now()}); // Date.now()<--- Chave mestra para resetar o componente
+        if (type === 'success') {
+            carregarServidores();
+        }
+    };
+
+    // --- CONTROLE DO MODAL ---
+    const handleOpenModal = () => {
+        setModalConfig({ servidor: null, mode: 'new' });
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setModalConfig({ servidor: null, mode: 'new' });
+    };
+
+    const handleVisualizar = (servidor) => {
+        setModalConfig({ servidor, mode: 'view' });
+        setIsModalOpen(true);
+    };
+
+    const handleEditar = (servidor) => {
+        setModalConfig({ servidor, mode: 'edit' });
+        setIsModalOpen(true);
+    };
+
+    const handleExcluir = async (servidor) => {
+        if (window.confirm(`Tem certeza que deseja excluir o colaborador ${servidor.nome}?`)) {
+            try {
+                await sendData(`${API_ENDPOINT}/${servidor.id}`, 'DELETE');
+                handleServidorSaved("Colaborador excluído com sucesso!", 'success');
+            } catch (error) {
+                handleServidorSaved("Erro ao excluir colaborador.", 'error');
+            }
+        }
+    };
+
+    const servidoresFiltrados = servidores.filter(s => {
+        const matchesNome = s.pessoa?.nome?.toLowerCase().includes(filtroNome.toLowerCase());
+        const matchesSetor = s.setor?.nomeSetor?.toLowerCase().includes(filtroSetor.toLowerCase());
+        const matchesStatus = filtroStatus === 'Todos' || s.situacao?.toLowerCase() === filtroStatus.toLowerCase();
+        return matchesNome && matchesSetor && matchesStatus;
+    });
+
+    return (
+        <div className="main-list-container">
+            <div className="header-container">
+                <h1 className="page-title">Cadastro de Colaboradores</h1>
+                <button className="btn-novo-cadastro" onClick={handleOpenModal}>
+                    <FaPlus /> Novo Cadastro
+                </button>
+            </div>
+
+            <div className="area-pesquisa-container">
+                <h3 className="area-pesquisa-titulo"><FaSearch /> Área de Pesquisa</h3>
+                <div className="filtros-container">
+                    <div className="filtro-item">
+                        <label>Nome</label>
+                        <input type="text" className="filtro-input" value={filtroNome} onChange={(e) => setFiltroNome(e.target.value)} placeholder="Nome..." />
+                    </div>
+                    <div className="filtro-item">
+                        <label>Setor</label>
+                        <input type="text" className="filtro-input" value={filtroSetor} onChange={(e) => setFiltroSetor(e.target.value)} placeholder="Setor..." />
+                    </div>
+                    <div className="filtro-item">
+                        <label>Status</label>
+                        <select className="filtro-input" value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)}>
+                            <option value="Todos">Todos</option>
+                            <option value="ativo">Ativo</option>
+                            <option value="inativo">Inativo</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div className="tabela-wrapper">
+                <table className="tabela-listagem">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Matrícula</th>
+                            <th>Setor</th>
+                            <th>Perfil</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {loading ? (
+                            <tr><td colSpan="6" style={{textAlign: 'center'}}>Carregando...</td></tr>
+                        ) : servidoresFiltrados.length > 0 ? (
+                            servidoresFiltrados.map((s) => (
+                                <tr key={s.id}>
+                                    <td>{s.pessoa?.nome}</td>
+                                    <td>{s.matricula}</td>
+                                    <td>{s.setor?.nomeSetor || 'N/A'}</td>
+                                    <td><span className={`badge-perfil ${s.tipo}`}>{s.tipo}</span></td>
+                                    <td>
+                                        <span className={`status-indicador ${s.situacao?.toLowerCase() === 'ativo' ? 'status-ativo' : 'status-inativo'}`}>
+                                            {s.situacao}
+                                        </span>
+                                    </td>
+                                    <td className="acoes-cell">
+                                        <button className="action-button view-button" title="Visualizar" onClick={() => handleVisualizar(s)}><FaEye /></button>
+                                        <button className="action-button edit-button" title="Editar" onClick={() => handleEditar(s)}><FaEdit /></button>
+                                        <button className="action-button delete-button" title="Excluir" onClick={() => handleExcluir(s)}><FaTrashAlt /></button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            /* LINHA ADICIONADA CONFORME SOLICITADO */
+                            <tr>
+                                <td colSpan="6" className="mensagem-tabela-vazia">
+                                    Nenhum colaborador encontrado.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            {isModalOpen && (
+                <ServidorModal 
+                    onClose={handleCloseModal}
+                    onSaveSuccess={handleServidorSaved}
+                    servidorToEdit={modalConfig.servidor}
+                    mode={modalConfig.mode}
+                />
+            )}
+
+            {notification && (
+                <NotificationToast
+                    key={notification.id} // Adicionado para forçar re-montagem
+                    message={notification.message}
+                    type={notification.type}
+                    onDismiss={dismissNotification}
+                    duration={3000} 
+                />
+            )}
+        </div>
+    );
+};
+
+export default Servidor;
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+import React, { useState, useEffect } from 'react';
+import { FaSearch, FaPlus, FaEdit, FaTrashAlt, FaEye } from 'react-icons/fa';
+import { fetchData, sendData } from '../../service/api'; 
+import ServidorModal from './ServidorModal'; // Certifique-se de que o caminho está correto
+import '../style/style-pagina-principal.css';
+import NotificationToast from '../loadingoverlay/NotificationToast'; 
+
+const Servidor = () => {
+
+    // Estados Principais
+    const [servidores, setServidores] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [notification, setNotification] = useState(null);
+
+    // Função para dispensar a notificação
+    const dismissNotification = () => setNotification(null);
+    
+    // Estados para o Modal
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedServidor, setSelectedServidor] = useState(null);
+    const [modalMode, setModalMode] = useState('new'); // 'new', 'edit' ou 'view'
+
+    // Estados para os filtros
+    const [filtroNome, setFiltroNome] = useState('');
+    const [filtroSetor, setFiltroSetor] = useState('');
+    const [filtroStatus, setFiltroStatus] = useState('Todos');
+
+    // Função para carregar os servidores
+    const carregarServidores = async () => {
+        try {
+            setLoading(true);
+            const data = await fetchData('/api/servidor');
+            setServidores(data);
+        } catch (error) {
+            console.error("Erro ao buscar servidores:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        carregarServidores();
+    }, []);
+
+    // Função que o MODAL chamará no sucesso ou erro
+    const handleColaboradorSaved = (message, type) => {
+        setNotification({ message, type });
+        if (type === 'success') {
+            carregarServidores();
+        }
+    };
+
+
+    // --- FUNÇÕES DE AÇÃO ---
+
+    const handleNovoCadastro = () => {
+        setSelectedServidor(null);
+        setModalMode('new');
+        setIsModalOpen(true);
+    };
+
+    const handleEditar = (servidor) => {
+        setSelectedServidor(servidor);
+        setModalMode('edit');
+        setIsModalOpen(true);
+    };
+
+    const handleVisualizar = (servidor) => {
+        setSelectedServidor(servidor);
+        setModalMode('view');
+        setIsModalOpen(true);
+    };
+
+    const handleExcluir = async (id, nome) => {
+        if (window.confirm(`Tem certeza que deseja excluir o colaborador ${nome}?`)) {
+            try {
+                // DELETE não costuma precisar de body, então passamos nulo
+                await sendData(`/api/servidor/${id}`, 'DELETE', null);
+                handleColaboradorSaved("Colaborador excluído com sucesso!", 'success');
+                
+            } catch (error) {
+                
+                handleColaboradorSaved("Erro ao excluir colaborador. Tente novamente.", 'error');
+            }
+        }
+    };
+
+    // Lógica de filtragem (Ajustada para ignorar Maiúsculas/Minúsculas)
+    const servidoresFiltrados = servidores.filter(s => {
+        const matchesNome = s.nome?.toLowerCase().includes(filtroNome.toLowerCase());
+        const matchesSetor = s.setor?.nomeSetor?.toLowerCase().includes(filtroSetor.toLowerCase());
+        const matchesStatus = filtroStatus === 'Todos' || s.situacao?.toLowerCase() === filtroStatus.toLowerCase();
+        return matchesNome && matchesSetor && matchesStatus;
+    });
+
+    return (
+        <div className="main-list-container">
+            <div className="header-container">
+                <h1 className="page-title">Cadastro de Colaboradores</h1>
+                <button className="btn-novo-cadastro" onClick={handleNovoCadastro}>
+                    <FaPlus /> Novo Cadastro
+                </button>
+            </div>
+
+            {/* Área de Pesquisa 
+            <div className="area-pesquisa-container">
+                <h3 className="area-pesquisa-titulo"><FaSearch /> Área de Pesquisa</h3>
+                <div className="filtros-container">
+                    <div className="filtro-item">
+                        <label>Nome</label>
+                        <input 
+                            type="text" 
+                            className="filtro-input" 
+                            placeholder="Pesquisar por nome..."
+                            value={filtroNome}
+                            onChange={(e) => setFiltroNome(e.target.value)}
+                        />
+                    </div>
+                    <div className="filtro-item">
+                        <label>Setor</label>
+                        <input 
+                            type="text" 
+                            className="filtro-input" 
+                            placeholder="Pesquisar por setor..."
+                            value={filtroSetor}
+                            onChange={(e) => setFiltroSetor(e.target.value)}
+                        />
+                    </div>
+                    <div className="filtro-item">
+                        <label>Status</label>
+                        <select 
+                            className="filtro-input"
+                            value={filtroStatus}
+                            onChange={(e) => setFiltroStatus(e.target.value)}
+                        >
+                            <option value="Todos">Todos</option>
+                            <option value="ativo">Ativo</option>
+                            <option value="inativo">Inativo</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div className="tabela-wrapper">
+                <table className="tabela-listagem">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Matrícula</th>
+                            <th>Setor</th>
+                            <th>Perfil</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {loading ? (
+                            <tr><td colSpan="6" style={{textAlign: 'center'}}>Carregando...</td></tr>
+                        ) : servidoresFiltrados.length > 0 ? (
+                            servidoresFiltrados.map((s) => (
+                                <tr key={s.id}>
+                                    <td>{s.nome}</td>
+                                    <td>{s.matricula}</td>
+                                    <td>{s.setor?.nomeSetor || 'N/A'}</td>
+                                    <td><span className={`badge-perfil ${s.tipo}`}>{s.tipo}</span></td>
+                                    <td>
+                                        {/* Comparação toLowerCase para garantir a cor correta 
+                                        <span className={`status-indicador ${s.situacao?.toLowerCase() === 'ativo' ? 'status-ativo' : 'status-inativo'}`}>
+                                            {s.situacao}
+                                        </span>
+                                    </td>
+                                    <td className="acoes-cell">
+                                        <button 
+                                            className="action-button view-button" 
+                                            title="Visualizar"
+                                            onClick={() => handleVisualizar(s)}
+                                        >
+                                            <FaEye />
+                                        </button>
+                                        <button 
+                                            className="action-button edit-button" 
+                                            title="Editar"
+                                            onClick={() => handleEditar(s)}
+                                        >
+                                            <FaEdit />
+                                        </button>
+                                        <button 
+                                            className="action-button delete-button" 
+                                            title="Excluir"
+                                            onClick={() => handleExcluir(s.id, s.nome)}
+                                        >
+                                            <FaTrashAlt />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr><td colSpan="6" style={{textAlign: 'center'}}>Nenhum colaborador encontrado.</td></tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Chamada do Modal 
+            <ServidorModal 
+                isOpen={isModalOpen}  // Controla a visibilidade do modal
+                onClose={() => setIsModalOpen(false)}  // Função para fechar o modal
+                servidorData={selectedServidor}  // Dados do servidor para visualizar/editar
+                onSaveSuccess={handleColaboradorSaved}  // Função chamada após salvar
+                mode={modalMode}  // Modo do modal: 'new', 'view', 'edit'
+            />
+
+             {/* Renderização da Notificação
+            {notification && (
+                <NotificationToast
+                    message={notification.message}
+                    type={notification.type}
+                    onDismiss={dismissNotification}
+                    duration={3000} 
+                />
+            )}
+
+        </div>
+    );
+};
+
+export default Servidor;
+
+
+
+
+
+
+
+
+/*
+
+
+import React, { useState, useEffect } from 'react';
+import { FaSearch, FaPlus, FaEdit, FaTrashAlt, FaEye } from 'react-icons/fa';
+import { fetchData } from '../../service/api'; // Ajuste o caminho conforme seu projeto
+import '../style/style-pagina-principal.css';
+import ServidorModal from './ServidorModal';
+
+const Servidor = () => {
+    const [servidores, setServidores] = useState([]);
+    const [loading, setLoading] = useState(true);
+    
+    // Estados para os filtros conforme a imagem image_de4ac0.png
+    const [filtroNome, setFiltroNome] = useState('');
+    const [filtroSetor, setFiltroSetor] = useState('');
+    const [filtroStatus, setFiltroStatus] = useState('Todos');
+
+    const carregarServidores = async () => {
+        try {
+            setLoading(true);
+            const data = await fetchData('/api/servidor');
+            setServidores(data);
+        } catch (error) {
+            console.error("Erro ao buscar servidores:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        carregarServidores();
+    }, []);
+
+    // Lógica de filtragem
+    const servidoresFiltrados = servidores.filter(s => {
+        const matchesNome = s.nome?.toLowerCase().includes(filtroNome.toLowerCase());
+        // Acessa o nome dentro do objeto setor retornado pela API
+        const matchesSetor = s.setor?.nomeSetor?.toLowerCase().includes(filtroSetor.toLowerCase());
+        const matchesStatus = filtroStatus === 'Todos' || s.situacao === filtroStatus;
+
+        return matchesNome && matchesSetor && matchesStatus;
+    });
+
+    return (
+        <div className="main-list-container">
+            <div className="header-container">
+                <h1 className="page-title">Cadastro de Colaboradores</h1>
+                <button className="btn-novo-cadastro">
+                    <FaPlus /> Novo Cadastro
+                </button>
+            </div>
+
+            {/* Área de Pesquisa 
+            <div className="area-pesquisa-container">
+                <h3 className="area-pesquisa-titulo"><FaSearch /> Área de Pesquisa</h3>
+                <div className="filtros-container">
+                    <div className="filtro-item">
+                        <label>Nome</label>
+                        <input 
+                            type="text" 
+                            className="filtro-input" 
+                            placeholder="Pesquisar por nome..."
+                            value={filtroNome}
+                            onChange={(e) => setFiltroNome(e.target.value)}
+                        />
+                    </div>
+                    <div className="filtro-item">
+                        <label>Setor</label>
+                        <input 
+                            type="text" 
+                            className="filtro-input" 
+                            placeholder="Pesquisar por setor..."
+                            value={filtroSetor}
+                            onChange={(e) => setFiltroSetor(e.target.value)}
+                        />
+                    </div>
+                    <div className="filtro-item">
+                        <label>Status</label>
+                        <select 
+                            className="filtro-input"
+                            value={filtroStatus}
+                            onChange={(e) => setFiltroStatus(e.target.value)}
+                        >
+                            <option value="Todos">Todos</option>
+                            <option value="ativo">Ativo</option>
+                            <option value="inativo">Inativo</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            {/* Tabela de Dados 
+            <div className="tabela-wrapper">
+                <table className="tabela-listagem">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Matrícula</th>
+                            <th>Setor</th>
+                            <th>Perfil</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {loading ? (
+                            <tr><td colSpan="6" style={{textAlign: 'center'}}>Carregando...</td></tr>
+                        ) : servidoresFiltrados.length > 0 ? (
+                            servidoresFiltrados.map((s) => (
+                                <tr key={s.id}>
+                                    <td>{s.nome}</td>
+                                    <td>{s.matricula}</td>
+                                    {/* Acesso seguro ao objeto aninhado setor 
+                                    <td>{s.setor?.nomeSetor || 'N/A'}</td>
+                                    {/* Mapeando 'tipo' da API para a coluna 'Perfil' da UI 
+                                    <td><span className={`badge-perfil ${s.tipo}`}>{s.tipo}</span></td>
+                                    <td>
+                                        <span className={`status-indicador ${s.situacao === 'Ativo' ? 'status-ativo' : 'status-inativo'}`}>
+                                            {s.situacao}
+                                        </span>
+                                    </td>
+                                    <td className="acoes-cell">
+                                        <button className="action-button view-button" title="Visualizar"><FaEye /></button>
+                                        <button className="action-button edit-button" title="Editar"><FaEdit /></button>
+                                        <button className="action-button delete-button" title="Excluir"><FaTrashAlt /></button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr><td colSpan="6" style={{textAlign: 'center'}}>Nenhum colaborador encontrado.</td></tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Chamada do Modal 
+            <ServidorModal 
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                servidorData={selectedServidor}
+                mode={modalMode}
+                onSaveSuccess={carregarServidores}
+            />
+
+                        
+
+        </div>
+    );
+};
+
+export default Servidor;
+
+
+*/
+
+
+
+
+
+
+
+
+/*
+
 import React, { useState, useEffect } from 'react';
 import { FaSearch, FaPlus, FaEdit, FaTrash, FaEye } from 'react-icons/fa'; 
 import './Servidor.css'; 
@@ -94,7 +701,7 @@ const Servidores = () => {
                 </button>
             </div>
 
-            {/* Área de Pesquisa/Filtros (Baseado na sua imagem) */}
+            {/* Área de Pesquisa/Filtros 
             <div className="area-pesquisa-container">
                 <h3 className="area-pesquisa-titulo">
                     <FaSearch /> Área de Pesquisa
@@ -139,7 +746,7 @@ const Servidores = () => {
             </div>
 
 
-            {/* Tabela de Colaboradores */}
+            {/* Tabela de Colaboradores 
             <div className="tabela-wrapper">
                 <table className="tabela-servidores">
                     <thead>
@@ -197,12 +804,14 @@ const Servidores = () => {
                 />
             )}
 
-            */}
+            
         </div>
     );
 };
 
 export default Servidores;
+
+*/
 
 
 

@@ -5,8 +5,6 @@ import { fetchData, sendData } from '../../service/api'; // Necessário para CRU
 import ManutencaoModal from './ManutencaoModal'; 
 import NotificationToast from '../loadingoverlay/NotificationToast'; 
 
-//import './Manutencao.css'; 
-import '../style/style-pagina-principal.css'; // Estilos compartilhados
 
 const Manutencao = () => {
     
@@ -177,9 +175,6 @@ const Manutencao = () => {
                             <th>Veiculo</th>
                             <th>Tipo de manutenção</th>
                             <th>Descrição</th>
-                            <th>Data de Inicio</th>
-                            <th>Previsão de Entrega</th>
-                            <th>Horario Marcado</th>
                             <th>Status</th>
                             <th>Ações</th>
                         </tr>
@@ -190,10 +185,11 @@ const Manutencao = () => {
                                 {/* Renderização: usa Optional Chaining (?.) para veículos aninhados */}
                                 <td>{`${manutencao.veiculo?.modelo || 'N/A'} - ${manutencao.veiculo?.placa || 'N/A'}`}</td>
                                 <td>{manutencao.tipoManutencao}</td>
-                                <td>{manutencao.descricao}</td>
-                                <td>{manutencao.dataInicio}</td>
-                                <td>{manutencao.previsaoEntrega}</td>
-                                <td>{manutencao.horarioMarcado}</td>
+                                <td className="descricao-cell">
+                                <div className="text-truncate" title={manutencao.descricao}>
+                                    {manutencao.descricao}
+                                </div>
+                                </td>
                                 <td>{renderStatus(manutencao.status)}</td>
                                 
                                 {/* CÉLULA DE AÇÕES */}

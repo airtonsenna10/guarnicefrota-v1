@@ -1,3 +1,82 @@
+
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Sidebar from './components/Sidebar';
+import Topbar from './components/Topbar';
+import Dashboard from './components/Dashboard';
+import Solicitacoes from './pages/Solicitacoes';
+import Autorizacoes from './pages/Autorizacoes';
+import Viagens from './pages/Viagens';
+import Veiculos from './pages/veiculo/Veiculo';
+import Manutencoes from './pages/manutencao/Manutencao';
+import Alertas from './pages/alerta/Alerta';
+import Servidores from './pages/servidor/Servidor';
+import Motoristas from './pages/motorista/Motorista';
+import Usuarios from './pages/usuario/Usuario';
+import Setores from './pages/setor/Setor';
+import './App.css';
+import './style/GlobalListStyles.css'; // Importa o CSS comum para listas (Veiculos, Motoristas, etc.)
+import './style/GlobalModalStyles.css'; // Importa o CSS comum para modais
+
+
+function App() {
+  const [isSidebarToggled, setSidebarToggled] = useState(false);
+
+  const toggleSidebar = () => {
+    setSidebarToggled(!isSidebarToggled);
+  };
+
+  return (
+    <Router>
+      <div className="app-container">
+        {/* PASSO 1: A Topbar agora fica aqui, fora do wrapper, para ocupar 100% da largura */}
+        <Topbar toggleSidebar={toggleSidebar} />
+
+        {/* O wrapper agora contém apenas o que fica ABAIXO da Topbar */}
+        <div id="wrapper" className="d-flex">
+          <Sidebar />
+          
+          <div id="page-content-wrapper">
+            {/* A Topbar saiu daqui de dentro */}
+            <div className="container-fluid content-area">
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/solicitacoes" element={<Solicitacoes />} />
+                <Route path="/autorizacoes" element={<Autorizacoes />} />
+                <Route path="/viagens" element={<Viagens />} />
+                <Route path="/cadastro/veiculos" element={<Veiculos />} />
+                <Route path="/cadastro/manutencoes" element={<Manutencoes />} />
+                <Route path="/cadastro/alertas" element={<Alertas />} />
+                <Route path="/cadastro/servidores" element={<Servidores />} />
+                <Route path="/cadastro/motoristas" element={<Motoristas />} />
+                <Route path="/cadastro/usuarios" element={<Usuarios />} />
+                <Route path="/cadastro/setores" element={<Setores />} />
+              </Routes>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -25,6 +104,40 @@ function App() {
 
   return (
     <Router>
+      <div className= "app-container">
+        
+        <div id="wrapper" className="d-flex">
+          <Sidebar />
+          <div id="page-content-wrapper">
+            <Topbar toggleSidebar={toggleSidebar} />
+            <div className="container-fluid content-area">
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/solicitacoes" element={<Solicitacoes />} />
+                <Route path="/autorizacoes" element={<Autorizacoes />} />
+                <Route path="/viagens" element={<Viagens />} />
+                <Route path="/cadastro/veiculos" element={<Veiculos />} />
+                <Route path="/cadastro/manutencoes" element={<Manutencoes />} />
+                <Route path="/cadastro/alertas" element={<Alertas />} />
+                <Route path="/cadastro/servidores" element={<Servidores />} />
+                <Route path="/cadastro/motoristas" element={<Motoristas />} />
+                <Route path="/cadastro/usuarios" element={<Usuarios />} />
+                <Route path="/cadastro/setores" element={<Setores />} />
+              </Routes>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Router>
+  );
+
+*/
+
+
+
+  /*
+  return (
+    <Router>
       <div className={`app-container ${isSidebarToggled ? 'sidebar-toggled' : ''}`}>
         <Topbar toggleSidebar={toggleSidebar} />
         <div id="wrapper">
@@ -50,10 +163,12 @@ function App() {
       </div>
     </Router>
   );
+  
+
 }
 
 export default App;
-
+*/
 
 
 
